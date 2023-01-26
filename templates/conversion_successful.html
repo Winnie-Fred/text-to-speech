@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}    
+    <body class="loaded-content-wrapper" onload="myFunction()" style="margin:0;">
+        <div class="div-wrapper-for-loaded-content">
+        
+            <div id="loader">
+                <main>
+                    <svg class="ip" viewBox="0 0 256 128" width="256px" height="50px" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="grad1" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stop-color="#5ebd3e" />
+                                <stop offset="33%" stop-color="#ffb900" />
+                                <stop offset="67%" stop-color="#f78200" />
+                                <stop offset="100%" stop-color="#e23838" />
+                            </linearGradient>
+                            <linearGradient id="grad2" x1="1" y1="0" x2="0" y2="0">
+                                <stop offset="0%" stop-color="#e23838" />
+                                <stop offset="33%" stop-color="#973999" />
+                                <stop offset="67%" stop-color="#009cdf" />
+                                <stop offset="100%" stop-color="#5ebd3e" />
+                            </linearGradient>
+                        </defs>
+                        <g fill="none" stroke-linecap="round" stroke-width="16">
+                            <g class="ip__track" stroke="#ddd">
+                                <path d="M8,64s0-56,60-56,60,112,120,112,60-56,60-56"/>
+                                <path d="M248,64s0-56-60-56-60,112-120,112S8,64,8,64"/>
+                            </g>
+                            <g stroke-dasharray="180 656">
+                                <path class="ip__worm1" stroke="url(#grad1)" stroke-dashoffset="0" d="M8,64s0-56,60-56,60,112,120,112,60-56,60-56"/>
+                                <path class="ip__worm2" stroke="url(#grad2)" stroke-dashoffset="358" d="M248,64s0-56-60-56-60,112-120,112S8,64,8,64"/>
+                            </g>
+                        </g>
+                    </svg>
+                    <div class="loading-text">Converting...</div>
+                </main>
+            </div>
+            <div style="display: none;" id="loadedContent" class="animate-bottom">        
+                <div class="main-container">
+                    <div class="check-container">
+                        <div class="check-background">
+                            <svg viewBox="0 0 65 51" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7 25L27.3077 44L58.5 7" stroke="white" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <div class="check-shadow"></div>
+                    </div>
+                </div>
+                <div class="successful-conversion">
+                    <p>Text successfully converted to speech</p>
+                </div>
+                <div class="speak">
+                    <div><a class="open-modal" id="speak" href="#modal">Speak</a></div>        
+                </div>
+
+                {% comment %} Modal {% endcomment %}
+                <div id="modal">
+                    <div class="modal-content">
+                        <a id="back-button" href="#" title="Close Audio Player" class="close"><svg id="back-arrow" class="fa-solid fa-arrow-left-long" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M109.3 288L480 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-370.7 0 73.4-73.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-128 128c-12.5 12.5-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 288z"/></svg>Back</a>                   
+                        <div class="mediaplayerwrapper" id="mediaPlayerWrapper">
+                            <div class="mediaplayer" id="mediaPlayer">
+                            
+                                <audio id="audioPlayer" src="static/{{ speech }}"></audio>
+                            
+                                <div class="discarea">
+                                    <div class="disc">
+                                    </div>
+                                    <div class="stylus">
+                                        <div class="pivot"></div>
+                                        <div class="arm"></div>
+                                        <div class="head"></div>
+                                    </div>
+                                </div>
+                                <div class="controls">
+                                    <span class="title" id="audioTitleLabel">{{ speech }}</span>
+                                    <div class="buttons">                    
+                                        <button id="playState" class="playstate">
+                                            <svg class="fa-solid fa-play" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg>
+                                            <svg class="fa-solid fa-pause" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M48 64C21.5 64 0 85.5 0 112V400c0 26.5 21.5 48 48 48H80c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H48zm192 0c-26.5 0-48 21.5-48 48V400c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H240z"/></svg>
+                                        </button>
+                                        <button id="stopItem" class="stop">
+                                            <svg class="fa-solid fa-stop"xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128z"/></svg>
+                                        </button>                    
+                                    </div>
+                                    <div class="subControls">
+                                        <span class="duration" id="currentDuration">00:00</span>
+                                        <svg class="fa-solid fa-volume-high" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M533.6 32.5C598.5 85.3 640 165.8 640 256s-41.5 170.8-106.4 223.5c-10.3 8.4-25.4 6.8-33.8-3.5s-6.8-25.4 3.5-33.8C557.5 398.2 592 331.2 592 256s-34.5-142.2-88.7-186.3c-10.3-8.4-11.8-23.5-3.5-33.8s23.5-11.8 33.8-3.5zM473.1 107c43.2 35.2 70.9 88.9 70.9 149s-27.7 113.8-70.9 149c-10.3 8.4-25.4 6.8-33.8-3.5s-6.8-25.4 3.5-33.8C475.3 341.3 496 301.1 496 256s-20.7-85.3-53.2-111.8c-10.3-8.4-11.8-23.5-3.5-33.8s23.5-11.8 33.8-3.5zm-60.5 74.5C434.1 199.1 448 225.9 448 256s-13.9 56.9-35.4 74.5c-10.3 8.4-25.4 6.8-33.8-3.5s-6.8-25.4 3.5-33.8C393.1 284.4 400 271 400 256s-6.9-28.4-17.7-37.3c-10.3-8.4-11.8-23.5-3.5-33.8s23.5-11.8 33.8-3.5zM301.1 34.8C312.6 40 320 51.4 320 64V448c0 12.6-7.4 24-18.9 29.2s-25 3.1-34.4-5.3L131.8 352H64c-35.3 0-64-28.7-64-64V224c0-35.3 28.7-64 64-64h67.8L266.7 40.1c9.4-8.4 22.9-10.4 34.4-5.3z"/></svg>
+                                        <input class="volumeSlider" type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.02"/>
+                                    </div>
+                                </div>
+                            </div>                    
+                        
+                        </div>
+                        <a href="#" title="Download" class="download">Download</a>
+                    </div>
+                </div>
+                {% comment %} Modal {% endcomment %}
+            </div>
+        </div>
+        <script>
+            var myVar;
+            var loader = document.getElementById("loader")
+            var loadedContent = document.getElementById("loadedContent")           
+
+            function myFunction() {
+                myVar = setTimeout(showPage, 3000);
+            }
+
+            function showPage() {
+                loader.style.display = "none";
+                loadedContent.style.display = "block";
+            }
+        </script>
+        <script src="{% static 'conversion_successful.js' %}"></script>
+    </div>
+{% endblock content %}
