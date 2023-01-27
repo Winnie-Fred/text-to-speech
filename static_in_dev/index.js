@@ -223,10 +223,7 @@ uploadButton.addEventListener("click", () => {
             
             // Make async ajax request
             uploadToServer('file_to_convert', fileInput.files[0], csrftoken, '/convert_file_content')
-          }
-        else {
-            // fileFlag = 0;            
-        }
+          }        
     } else {
         document.querySelector('.select-file-text').textContent = " Please select a file first ";
         cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
