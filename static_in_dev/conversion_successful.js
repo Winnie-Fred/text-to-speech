@@ -1,7 +1,7 @@
 // Media player
 
 
-const speak = document.querySelector(".speak div");
+const speak_div = document.querySelector(".speak div");
 const backButton = document.getElementById("back-button");
 const playerArea = document.getElementById("mediaPlayer");
 const playButton = document.getElementById("playState");
@@ -78,10 +78,9 @@ function updateDurationLabel() {
 
 // stop on completion
 audioPlayer.addEventListener("ended", () => {
-    console.log("SOng has ended")
     stopAudio();
 });
 
 
-speak.addEventListener("click", playMusic, false);
+speak_div.addEventListener("click", playMusic, false);
 // Media player

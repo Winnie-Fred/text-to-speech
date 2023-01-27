@@ -131,3 +131,4 @@ dmypy.json
 # Custom
 .vscode/
 speech.mp3
+test_document.Doc

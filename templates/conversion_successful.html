@@ -5,39 +5,41 @@
 {% block content %}    
     <body class="loaded-content-wrapper" onload="myFunction()" style="margin:0;">
         <div class="div-wrapper-for-loaded-content">
-        
-            <div id="loader">
-                <main>
-                    <svg class="ip" viewBox="0 0 256 128" width="256px" height="50px" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="grad1" x1="0" y1="0" x2="1" y2="0">
-                                <stop offset="0%" stop-color="#5ebd3e" />
-                                <stop offset="33%" stop-color="#ffb900" />
-                                <stop offset="67%" stop-color="#f78200" />
-                                <stop offset="100%" stop-color="#e23838" />
-                            </linearGradient>
-                            <linearGradient id="grad2" x1="1" y1="0" x2="0" y2="0">
-                                <stop offset="0%" stop-color="#e23838" />
-                                <stop offset="33%" stop-color="#973999" />
-                                <stop offset="67%" stop-color="#009cdf" />
-                                <stop offset="100%" stop-color="#5ebd3e" />
-                            </linearGradient>
-                        </defs>
-                        <g fill="none" stroke-linecap="round" stroke-width="16">
-                            <g class="ip__track" stroke="#ddd">
-                                <path d="M8,64s0-56,60-56,60,112,120,112,60-56,60-56"/>
-                                <path d="M248,64s0-56-60-56-60,112-120,112S8,64,8,64"/>
+            {% if preloader %}
+                <div id="loader">
+                    <main>
+                        <svg class="ip" viewBox="0 0 256 128" width="256px" height="50px" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad1" x1="0" y1="0" x2="1" y2="0">
+                                    <stop offset="0%" stop-color="#5ebd3e" />
+                                    <stop offset="33%" stop-color="#ffb900" />
+                                    <stop offset="67%" stop-color="#f78200" />
+                                    <stop offset="100%" stop-color="#e23838" />
+                                </linearGradient>
+                                <linearGradient id="grad2" x1="1" y1="0" x2="0" y2="0">
+                                    <stop offset="0%" stop-color="#e23838" />
+                                    <stop offset="33%" stop-color="#973999" />
+                                    <stop offset="67%" stop-color="#009cdf" />
+                                    <stop offset="100%" stop-color="#5ebd3e" />
+                                </linearGradient>
+                            </defs>
+                            <g fill="none" stroke-linecap="round" stroke-width="16">
+                                <g class="ip__track" stroke="#ddd">
+                                    <path d="M8,64s0-56,60-56,60,112,120,112,60-56,60-56"/>
+                                    <path d="M248,64s0-56-60-56-60,112-120,112S8,64,8,64"/>
+                                </g>
+                                <g stroke-dasharray="180 656">
+                                    <path class="ip__worm1" stroke="url(#grad1)" stroke-dashoffset="0" d="M8,64s0-56,60-56,60,112,120,112,60-56,60-56"/>
+                                    <path class="ip__worm2" stroke="url(#grad2)" stroke-dashoffset="358" d="M248,64s0-56-60-56-60,112-120,112S8,64,8,64"/>
+                                </g>
                             </g>
-                            <g stroke-dasharray="180 656">
-                                <path class="ip__worm1" stroke="url(#grad1)" stroke-dashoffset="0" d="M8,64s0-56,60-56,60,112,120,112,60-56,60-56"/>
-                                <path class="ip__worm2" stroke="url(#grad2)" stroke-dashoffset="358" d="M248,64s0-56-60-56-60,112-120,112S8,64,8,64"/>
-                            </g>
-                        </g>
-                    </svg>
-                    <div class="loading-text">Converting...</div>
-                </main>
-            </div>
-            <div style="display: none;" id="loadedContent" class="animate-bottom">        
+                        </svg>
+                        <div class="loading-text">Processing...</div>
+                        <div class="extra-loading-text">Please hold on...This may take a while</div>
+                    </main>
+                </div>
+            {% endif %}
+            <div {% if preloader %} style="display: none;" {% endif %} id="loadedContent" class="animate-bottom">        
                 <div class="main-container">
                     <div class="check-container">
                         <div class="check-background">
@@ -62,7 +64,7 @@
                         <div class="mediaplayerwrapper" id="mediaPlayerWrapper">
                             <div class="mediaplayer" id="mediaPlayer">
                             
-                                <audio id="audioPlayer" src="static/{{ speech }}"></audio>
+                                <audio id="audioPlayer" src="{% static 'speech.mp3' %}"></audio>
                             
                                 <div class="discarea">
                                     <div class="disc">
@@ -99,20 +101,24 @@
                 {% comment %} Modal {% endcomment %}
             </div>
         </div>
-        <script>
-            var myVar;
-            var loader = document.getElementById("loader")
-            var loadedContent = document.getElementById("loadedContent")           
+        {% if preloader %}
+            <script>
+                console.log("Script running")
+                var myVar;
+                var loader = document.getElementById("loader")
+                var loadedContent = document.getElementById("loadedContent")           
 
-            function myFunction() {
-                myVar = setTimeout(showPage, 3000);
-            }
+                function myFunction() {
+                    console.log("My Function running")
+                    myVar = setTimeout(showPage, 3000);
+                }
 
-            function showPage() {
-                loader.style.display = "none";
-                loadedContent.style.display = "block";
-            }
-        </script>
-        <script src="{% static 'conversion_successful.js' %}"></script>
-    </div>
+                function showPage() {
+                    loader.style.display = "none";
+                    loadedContent.style.display = "block";
+                }
+            </script>
+            <script src="{% static 'conversion_successful.js' %}"></script>
+        {% endif %}
+    </body>
 {% endblock content %}
