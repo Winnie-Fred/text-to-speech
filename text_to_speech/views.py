@@ -37,9 +37,7 @@ def convert_input_text(request):
             try:
                 speech_audio_file = gtts.gTTS(text=text_to_be_converted, lang=lang, slow=False)  
                 speech_audio_file.save(f"static_in_dev/{name_of_speech_file}")
-            except gtts.tts.gTTSError as e:
-                context["errors"] = [f"An error occured during the conversion: {e}"]
-            except socket.error as e:
+            except (gtts.tts.gTTSError, socket.error, Exception) as e:
                 context["errors"] = [f"An error occured during the conversion: {e}"]
             else:
                 context["speech"] = name_of_speech_file
@@ -62,21 +60,25 @@ def convert_file_content(request):
         if form.is_valid():
             uploaded_file = request.FILES['file_to_convert']
             file_name = request.FILES['file_to_convert'].name.lower()
+            text = ''
             
             if uploaded_file.read():
-                if file_name.endswith(".pdf"):
-                    text = extract_text_from_pdf(uploaded_file)
-                elif file_name.endswith(".txt"):
-                    text = extract_text_from_txt(uploaded_file)
-                elif file_name.endswith(".doc") or file_name.endswith(".docx"):
-                    text = extract_text_from_docx(uploaded_file)
+                try:
+                    if file_name.endswith(".pdf"):
+                        text = extract_text_from_pdf(uploaded_file)
+                    elif file_name.endswith(".txt"):
+                        text = extract_text_from_txt(uploaded_file)
+                    elif file_name.endswith(".doc") or file_name.endswith(".docx"):
+                        text = extract_text_from_docx(uploaded_file)
+                except Exception as e:
+                    print(f"An exception occured with the file: {e}")
+                    context["errors"] = [f"An error occured with the file: {e}"]
+                    return JsonResponse({"context":context})
 
                 try:
                     speech_audio_file = gtts.gTTS(text=text, lang=lang, slow=False)  
                     speech_audio_file.save(f"static_in_dev/{name_of_speech_file}")
-                except gtts.tts.gTTSError as e:
-                    context["errors"] = [f"An error occured during the conversion: {e}"]
-                except socket.error as e:
+                except (gtts.tts.gTTSError, socket.error, Exception) as e:
                     context["errors"] = [f"An error occured during the conversion: {e}"]
                 else:
                     context["speech"] = name_of_speech_file
