@@ -273,6 +273,17 @@ body {
 	box-sizing: border-box;
 	font-family: 'Montserrat', sans-serif;
 }
+
+.accepted-files {
+  width: 100vw;
+  background-color: #7b2cbf;
+  display: flex;
+  justify-content: center;
+	align-items: center;
+  padding-top:90px;
+  color: #fff;
+}
+
 .form-container {
 	width: 100vw;
 	height: 100vh;
@@ -322,7 +333,7 @@ body {
 .default-file-input {
 	opacity: 0;
 }
-.cannot-upload-message {
+.cannot-upload-message, .cannot-leave-blank-message {
 	background-color: #ffc6c4;
 	font-size: 17px;
 	display: flex;
@@ -337,13 +348,23 @@ body {
   0% {opacity: 0;}
   100% {opacity: 1;}
 }
-.cannot-upload-message span, .upload-button-icon {
+.cannot-upload-message span, .cannot-leave-blank-message span, .upload-button-icon {
 	padding-right: 10px;
 }
-.cannot-upload-message span:last-child {
+.cannot-upload-message span:last-child, .cannot-leave-blank-message span:last-child {
 	padding-left: 20px;
 	cursor: pointer;
 }
+
+.cannot-leave-blank-message {
+  width: 90%; margin-left: 5%; margin-top: 10px;
+}
+
+.cancel-alert-button-text {
+  margin-left: 75%;
+  padding-left: 30%;
+}
+
 .file-block {
 	color: #f7fff7;
 	background-color: #7b2cbf;
@@ -537,7 +558,7 @@ body {
   /* Media player */
 
     .mediaplayer {
-        font-size: 14px;
+        font-size: 12px;
         font-family: Myriad Set Pro, Helvetica Neue, Helvetica, Arial, sans-serif;
         background: linear-gradient(to left, #46230f 0%, #46230f 22%, #4b1e14 25%, #4b1e14 47%, #4e2319 50%, #4e2319 72%, #552d1e 75%, #552d1e 100%);
         background-size: 50%;
@@ -808,7 +829,7 @@ body {
     text-align: center;
     box-sizing: border-box;
     padding: 3px 10px;
-    font-size: 1rem;
+    /* font-size: 1rem; */
     color: #7F3A2B;
     background-color: beige;
     border-radius: 25px;
@@ -1089,6 +1110,95 @@ body {
   
   .loading-text {
       width:100%;padding:10px;display:flex;justify-content: center;align-items:center;margin-top:60px;
+    }
+    
+  .extra-loading-text {
+    width:100%;padding:10px;display:flex;justify-content: center;align-items:center;margin-top:70px;
   }
 
   /* Successful Conversion Page  */
+
+  /* Error animation plus error message */
+  
+  .error-container {
+    background-color: white;
+    height: 440px;
+    width: 275px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .circle,
+  .circle-border {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+  }
+  
+  .circle {
+    z-index: 1;
+    position: relative;
+    background: white;
+    transform: scale(1);
+    animation: success-anim 700ms ease;
+  }
+  
+  .circle-border {
+    z-index: 0;
+    position: absolute;
+    transform: scale(1.1);
+    animation: circle-anim 400ms ease;
+    background: #f86;
+  }
+  
+  @keyframes success-anim {
+    0% {
+      transform: scale(0);
+    }
+    30% {
+      transform: scale(0);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  @keyframes circle-anim {
+    from {
+      transform: scale(0);
+    }
+    to {
+      transform: scale(1.1);
+    }
+  }
+  .error::before,
+  .error::after {
+    content: "";
+    display: block;
+    height: 4px;
+    background: #f86;
+    position: absolute;
+  }
+  
+  .error::before {
+    width: 40px;
+    top: 48%;
+    left: 16%;
+    transform: rotateZ(50deg);
+  }
+  
+  .error::after {
+    width: 40px;
+    top: 48%;
+    left: 16%;
+    transform: rotateZ(-50deg);
+  }
+
+  .single-error {
+    color: #f86;
+    text-align: center;
+    padding-bottom: 5px;
+  }
+
+  /* Error animation plus error message */
+

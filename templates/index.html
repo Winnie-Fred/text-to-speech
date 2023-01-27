@@ -5,7 +5,8 @@
 {% block content %}    
 
     <div class="detail">Simply copy and paste text in the box below:</div>
-    <form action = "{% url 'text_to_speech:convert_entered_text' %}" method="POST">
+    <span class="cannot-leave-blank-message"> <span class="material-icons-outlined">error</span> Please fill in this field first <span class="material-icons-outlined cancel-alert-button-text">cancel</span> </span>
+    <form>
         {% csrf_token %}
         <div class="last">
             <div class="container">
@@ -17,7 +18,7 @@
         </div>
 
         <div class="speak">            
-            <div><button class="convert-entered-text-btn" name="convert_entered_text" type="submit" id="speak">Convert</button></div>
+            <div><button class="convert-entered-text-btn" name="convert_entered_text" type="button" id="speak">Convert</button></div>
         </div>    
     </form>
 
@@ -25,15 +26,17 @@
         OR
     </div>
 
+    <div class="accepted-files">upload a PDF, DOC, DOCX or TXT file</div>
     <!--Drag and drop files-->
-    <form class="form-container" enctype='multipart/form-data'>
+    <form class="form-container" enctype="multipart/form-data">
+        {% csrf_token %}
         <div class="upload-files-container">
             <div class="drag-file-area">
                 <span class="material-icons-outlined upload-icon"> file_upload </span>
                 <h3 class="dynamic-message"> Drag & drop any file here </h3>
-                <label class="label"> or <span class="browse-files"> <input type="file" class="default-file-input"/> <span class="browse-files-text">browse file</span> <span>from device</span> </span> </label>
+                <label class="label"> or <span class="browse-files"> {{ file_input_form.file_to_convert }} <span class="browse-files-text">browse file</span> <span>from device</span> </span> </label>
             </div>
-            <span class="cannot-upload-message"> <span class="material-icons-outlined">error</span> Please select a file first <span class="material-icons-outlined cancel-alert-button">cancel</span> </span>
+            <span class="cannot-upload-message"> <span class="material-icons-outlined">error</span> <span class="select-file-text"> Please select a file first </span> <span class="material-icons-outlined cancel-alert-button-file">cancel</span> </span>
             <div class="file-block">
                 <div class="file-info"> <span class="material-icons-outlined file-icon">description</span> <span class="file-name"> </span> | <span class="file-size">  </span> </div>
                 <span class="material-icons remove-file-icon">delete</span>
@@ -43,7 +46,7 @@
                 <div><a class="open-modal upload-a" id="speak" href="#modal">Speak</a></div>
             </div> {% endcomment %}
 
-            <button type="button" class="upload-button">Convert</button>
+            <button type="button" class="upload-button">Upload</button>
         </div>
     </form>
     <!--Drag and drop files-->
