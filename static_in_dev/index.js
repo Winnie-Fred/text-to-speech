@@ -21,6 +21,8 @@ let removeFileButton = document.querySelector(".remove-file-icon");
 let uploadButton = document.querySelector(".upload-button");
 let textConvertButton = document.querySelector(".convert-entered-text-btn");
 let fileFlag = 0;
+let MAX_UPLOAD_SIZE = 20480;
+let MAX_UPLOAD_SIZE_KB = (MAX_UPLOAD_SIZE/1024).toFixed(1) + " KB"
 
 document.addEventListener("click", function(e){
     const target = e.target.closest(".default-file-input");
@@ -45,18 +47,27 @@ document.body.addEventListener( 'change', function ( event ) {
             fileInput.value = '';
             cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
             document.querySelector('.select-file-text').textContent = "Please upload only .txt, .doc, .docx or .pdf files";
+            return
+        } 
 
-        } else {
-            uploadIcon.innerHTML = 'check_circle';
-            dragDropText.innerHTML = 'File Dropped Successfully!';
-            document.querySelector(".label").innerHTML = `drag & drop or <span class="browse-files"><input type="file" class="default-file-input" accept=".txt,.doc,.docx,.pdf" name="file_to_convert" style=""/><span class="browse-files-text" style="top: 0;"> browse file</span></span>`;
-            uploadButton.innerHTML = `Upload`;
-            fileName.innerHTML = nameOfFile;
-            fileSize.innerHTML = (fileInput.files[0].size/1024).toFixed(1) + " KB";
-            uploadedFile.style.cssText = "display: flex;";
-            progressBar.style.width = 0;
-            fileFlag = 0;
+        if (fileInput.files[0].size > MAX_UPLOAD_SIZE) {
+            fileFlag = 1;
+            cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
+            document.querySelector('.select-file-text').textContent = "Please keep file size under " + MAX_UPLOAD_SIZE_KB + ". Current filesize: " + (fileInput.files[0].size/1024).toFixed(1) + " KB";            
+            fileInput.value = '';
+            return
         }
+
+        uploadIcon.innerHTML = 'check_circle';
+        dragDropText.innerHTML = 'File Dropped Successfully!';
+        document.querySelector(".label").innerHTML = `drag & drop or <span class="browse-files"><input type="file" class="default-file-input" accept=".txt,.doc,.docx,.pdf" name="file_to_convert" style=""/><span class="browse-files-text" style="top: 0;"> browse file</span></span>`;
+        uploadButton.innerHTML = `Upload`;
+        fileName.innerHTML = nameOfFile;
+        fileSize.innerHTML = (fileInput.files[0].size/1024).toFixed(1) + " KB";
+        uploadedFile.style.cssText = "display: flex;";
+        progressBar.style.width = 0;
+        fileFlag = 0;
+        
     };
     } );
 
@@ -285,18 +296,28 @@ if(isAdvancedUpload) {
             fileInput.value = '';
             cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
             document.querySelector('.select-file-text').textContent = "Please upload only .txt, .doc, .docx or .pdf files";
-        } else {
-            uploadIcon.innerHTML = 'check_circle';
-            dragDropText.innerHTML = 'File Dropped Successfully!';
-            document.querySelector(".label").innerHTML = `drag & drop or <span class="browse-files"><input name="file_to_convert" accept=".txt,.doc,.docx,.pdf" type="file" class="default-file-input" style=""/><span class="browse-files-text" style="top: -23px; left: -20px;"> browse file</span></span>`;
-            uploadButton.innerHTML = `Upload`;
-            
-            fileName.innerHTML = nameOfFile;
-            fileSize.innerHTML = (files[0].size/1024).toFixed(1) + " KB";
-            uploadedFile.style.cssText = "display: flex;";
-            progressBar.style.width = 0;
-            fileFlag = 0;
+            return
+        } 
+
+        if (files[0].size > MAX_UPLOAD_SIZE) {
+            fileFlag = 1;
+            cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
+            document.querySelector('.select-file-text').textContent = "Please keep file size under " + MAX_UPLOAD_SIZE_KB + ". Current filesize: " + (files[0].size/1024).toFixed(1) + " KB";            
+            fileInput.value = '';
+            return
         }
+
+        uploadIcon.innerHTML = 'check_circle';
+        dragDropText.innerHTML = 'File Dropped Successfully!';
+        document.querySelector(".label").innerHTML = `drag & drop or <span class="browse-files"><input name="file_to_convert" accept=".txt,.doc,.docx,.pdf" type="file" class="default-file-input" style=""/><span class="browse-files-text" style="top: -23px; left: -20px;"> browse file</span></span>`;
+        uploadButton.innerHTML = `Upload`;
+        
+        fileName.innerHTML = nameOfFile;
+        fileSize.innerHTML = (files[0].size/1024).toFixed(1) + " KB";
+        uploadedFile.style.cssText = "display: flex;";
+        progressBar.style.width = 0;
+        fileFlag = 0;
+       
 
     });
 }

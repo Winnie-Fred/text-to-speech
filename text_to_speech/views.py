@@ -59,13 +59,14 @@ def convert_file_content(request):
         form = FileUploadForm(request.POST, request.FILES or None)
         if form.is_valid():
             uploaded_file = request.FILES['file_to_convert']
+            read_uploaded_file = uploaded_file.read()
             file_name = request.FILES['file_to_convert'].name.lower()
             text = ''
             
-            if uploaded_file.read():
+            if read_uploaded_file:
                 try:
                     if file_name.endswith(".pdf"):
-                        text = extract_text_from_pdf(uploaded_file)
+                        text = extract_text_from_pdf(read_uploaded_file)
                     elif file_name.endswith(".txt"):
                         text = extract_text_from_txt(uploaded_file)
                     elif file_name.endswith(".doc") or file_name.endswith(".docx"):
@@ -82,7 +83,7 @@ def convert_file_content(request):
                     context["errors"] = [f"An error occured during the conversion: {e}"]
                 else:
                     context["speech"] = name_of_speech_file
-                    print("Conversion complete!!!!!!")
+                    # print("Conversion complete!!!!!!")
                     html = render_block_to_string('conversion_successful.html', 'content', context, request=request)
                     return JsonResponse({"html":html, "context":context}, safe=False)
         else:         
@@ -95,11 +96,11 @@ def convert_file_content(request):
 
 
 def extract_text_from_pdf(file):
-    pdf_reader = PdfFileReader(io.BytesIO(file.read()))
+    pdf_reader = PdfFileReader(io.BytesIO(file))
     content = []
     # creating a page object
     for i in range(int(pdf_reader.numPages)):
-        content.append(pdf_reader.getPage(i).extractText() + "\n")
+        content.append(pdf_reader.getPage(i).extractText())
     return ''.join(content)
 
 def extract_text_from_txt(file):
