@@ -132,3 +132,5 @@ dmypy.json
 .vscode/
 speech.mp3
 test_document.Doc
+speech_files/
+speech_folder/

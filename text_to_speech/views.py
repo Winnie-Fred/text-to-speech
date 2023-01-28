@@ -3,18 +3,19 @@ import gtts
 import socket
 import io
 import docx2txt
+import uuid
 
 from django.shortcuts import render, redirect
+from django.core.files import File
 from django.http import JsonResponse
-from django.conf import settings
 
 from PyPDF4 import PdfFileReader
 from render_block import render_block_to_string
 
 from .forms import TypedInInputForm, FileUploadForm
+from .models import SpeechFile
 
 
-STATIC_FILES_DIR = os.path.basename(os.path.normpath(settings.STATICFILES_DIRS[0]))
 # Create your views here.
 
 def home(request):
@@ -28,42 +29,50 @@ def home(request):
     return render(request, 'index.html', context)
 
 def convert_input_text(request):
-    try:
-        context = {"speech":None, "errors":[], "preloader":False}
-        lang = 'en'
-        if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            print("It is an ajax request")
-            form = TypedInInputForm(request.POST)
-            if form.is_valid():
-                print("form is valid")
-                data = form.cleaned_data
-                request.session['form'] = data
-                text_to_be_converted = data.get('text_to_convert')
-                name_of_speech_file = "speech.mp3"
-                print("trying to convert")
-                try:
-                    speech_audio_file = gtts.gTTS(text=text_to_be_converted, lang=lang, slow=False)  
-                    speech_audio_file.save(f"{STATIC_FILES_DIR}/{name_of_speech_file}")
-                except (gtts.tts.gTTSError, socket.error, Exception) as e:
-                    context["errors"] = [f"An error occured during the conversion: {e}"]
-                else:
-                    print("conversion successsful")
-                    context["speech"] = name_of_speech_file
-                    html = render_block_to_string('conversion_successful.html', 'content', context, request=request)
-                    print("JsonResponse: ", JsonResponse({"html":html, "context":context}, safe=False))
-                    return JsonResponse({"html":html, "context":context}, safe=False)
-            else:
-                print("form not valid")
-                errors = []
-                for _, value in form.errors.items():
-                    errors.append(value)
-                context["errors"] = errors
-            return JsonResponse({"context":context})
-        return redirect('text_to_speech:home')
-    except Exception as e:
-        print("This is the error: ", e)
-    else:
-        return redirect('text_to_speech:home')
+    context = {"speech":None, "errors":[], "preloader":False}
+    lang = 'en'
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        form = TypedInInputForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            request.session['form'] = data
+            text_to_be_converted = data.get('text_to_convert')
+            name_of_speech_file = "speech.mp3"
+            try:
+                speech_audio_file = gtts.gTTS(text=text_to_be_converted, lang=lang, slow=False) 
+                if not os.path.isdir("speech_folder"):
+                    # Create dir if it does not exist
+                    os.makedirs("speech_folder")
+                speech_audio_file.save(f"speech_folder/{name_of_speech_file}")
+            except (gtts.tts.gTTSError, socket.error, Exception) as e:
+                context["errors"] = [f"An error occured during the conversion: {e}"]
+            else:                                   
+                file_name, _ = generate_unique_file_name()
+                new_speech_file = SpeechFile()
+                new_speech_file.name = file_name
+                new_speech_file.mp3.save(file_name, File(open(f"speech_folder/{name_of_speech_file}", "rb")))
+                new_speech_file.save()                   
+                speech_file = SpeechFile.objects.get(name=file_name)
+                context["speech_mp3"] = speech_file.mp3.url
+
+                html = render_block_to_string('conversion_successful.html', 'content', context, request=request)
+                return JsonResponse({"html":html, "context":context}, safe=False)
+        else:
+            errors = []
+            for _, value in form.errors.items():
+                errors.append(value)
+            context["errors"] = errors
+        return JsonResponse({"context":context})
+    return redirect('text_to_speech:home')
+
+def generate_unique_file_name():
+    speech_files = SpeechFile.objects.all()
+    while True:
+        unique_id = uuid.uuid4()
+        file_name = 'speech-' + str(uuid.uuid4())
+        if file_name not in speech_files:
+            return file_name, unique_id
+
 
 def convert_file_content(request):
     context = {"speech":None, "errors":[], "preloader":False}
@@ -92,12 +101,21 @@ def convert_file_content(request):
 
                 try:
                     speech_audio_file = gtts.gTTS(text=text, lang=lang, slow=False)  
-                    speech_audio_file.save(f"{STATIC_FILES_DIR}/{name_of_speech_file}")
+                    if not os.path.isdir("speech_folder"):
+                        # Create dir if it does not exist
+                        os.makedirs("speech_folder")
+                    speech_audio_file.save(f"speech_folder/{name_of_speech_file}")
                 except (gtts.tts.gTTSError, socket.error, Exception) as e:
                     context["errors"] = [f"An error occured during the conversion: {e}"]
                 else:
-                    context["speech"] = name_of_speech_file
-                    # print("Conversion complete!!!!!!")
+                    file_name, _ = generate_unique_file_name()
+                    new_speech_file = SpeechFile()
+                    new_speech_file.name = file_name
+                    new_speech_file.mp3.save(file_name, File(open(f"speech_folder/{name_of_speech_file}", "rb")))
+                    new_speech_file.save()                   
+                    speech_file = SpeechFile.objects.get(name=file_name)
+                    context["speech_mp3"] = speech_file.mp3.url
+                    # print("Conversion complete!!!!!")
                     html = render_block_to_string('conversion_successful.html', 'content', context, request=request)
                     return JsonResponse({"html":html, "context":context}, safe=False)
         else:         
