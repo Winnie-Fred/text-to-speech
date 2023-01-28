@@ -64,7 +64,7 @@
                         <div class="mediaplayerwrapper" id="mediaPlayerWrapper">
                             <div class="mediaplayer" id="mediaPlayer">
                             
-                                <audio id="audioPlayer" src="/static/{{ speech }}"></audio>
+                                <audio id="audioPlayer" src="{% static 'speech.mp3' %}"></audio>
                             
                                 <div class="discarea">
                                     <div class="disc">
@@ -95,7 +95,7 @@
                             </div>                    
                         
                         </div>
-                        <a href="/static/{{ speech }}" title="Download" class="download" download>Download</a>
+                        <a href="{% static 'speech.mp3' %}" title="Download" class="download" download>Download</a>
                     </div>
                 </div>
                 {% comment %} Modal {% endcomment %}
