@@ -29,41 +29,44 @@ def home(request):
     return render(request, 'index.html', context)
 
 def convert_input_text(request):
-    context = {"speech":None, "errors":[], "preloader":False}
-    lang = 'en'
-    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        form = TypedInInputForm(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            request.session['form'] = data
-            text_to_be_converted = data.get('text_to_convert')
-            name_of_speech_file = "speech.mp3"
-            try:
-                speech_audio_file = gtts.gTTS(text=text_to_be_converted, lang=lang, slow=False) 
-                if not os.path.isdir("speech_folder"):
-                    # Create dir if it does not exist
-                    os.makedirs("speech_folder")
-                speech_audio_file.save(f"speech_folder/{name_of_speech_file}")
-            except (gtts.tts.gTTSError, socket.error, Exception) as e:
-                context["errors"] = [f"An error occured during the conversion: {e}"]
-            else:                                   
-                file_name, _ = generate_unique_file_name()
-                new_speech_file = SpeechFile()
-                new_speech_file.name = file_name
-                new_speech_file.mp3.save(file_name, File(open(f"speech_folder/{name_of_speech_file}", "rb")))
-                new_speech_file.save()                   
-                speech_file = SpeechFile.objects.get(name=file_name)
-                context["speech_mp3"] = speech_file.mp3.url
+    try:
+        context = {"speech":None, "errors":[], "preloader":False}
+        lang = 'en'
+        if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            form = TypedInInputForm(request.POST)
+            if form.is_valid():
+                data = form.cleaned_data
+                request.session['form'] = data
+                text_to_be_converted = data.get('text_to_convert')
+                name_of_speech_file = "speech.mp3"
+                try:
+                    speech_audio_file = gtts.gTTS(text=text_to_be_converted, lang=lang, slow=False) 
+                    if not os.path.isdir("speech_folder"):
+                        # Create dir if it does not exist
+                        os.makedirs("speech_folder")
+                    speech_audio_file.save(f"speech_folder/{name_of_speech_file}")
+                except (gtts.tts.gTTSError, socket.error, Exception) as e:
+                    context["errors"] = [f"An error occured during the conversion: {e}"]
+                else:                                   
+                    file_name, _ = generate_unique_file_name()
+                    new_speech_file = SpeechFile()
+                    new_speech_file.name = file_name
+                    new_speech_file.mp3.save(file_name, File(open(f"speech_folder/{name_of_speech_file}", "rb")))
+                    new_speech_file.save()                   
+                    speech_file = SpeechFile.objects.get(name=file_name)
+                    context["speech_mp3"] = speech_file.mp3.url
 
-                html = render_block_to_string('conversion_successful.html', 'content', context, request=request)
-                return JsonResponse({"html":html, "context":context}, safe=False)
-        else:
-            errors = []
-            for _, value in form.errors.items():
-                errors.append(value)
-            context["errors"] = errors
-        return JsonResponse({"context":context})
-    return redirect('text_to_speech:home')
+                    html = render_block_to_string('conversion_successful.html', 'content', context, request=request)
+                    return JsonResponse({"html":html, "context":context}, safe=False)
+            else:
+                errors = []
+                for _, value in form.errors.items():
+                    errors.append(value)
+                context["errors"] = errors
+            return JsonResponse({"context":context})
+        return redirect('text_to_speech:home')
+    except Exception:
+        print("This is the error: ")
 
 def generate_unique_file_name():
     speech_files = SpeechFile.objects.all()
