@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-wu3#6=inlq3)gk-c+z1hhyx(f@@0oe41a2(8@x)sgrsuf@&ncl'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-LIVE = True
+LIVE = 'RENDER' in os.environ
 DEBUG = 'RENDER' not in os.environ
 
 ALLOWED_HOSTS = []
@@ -150,7 +150,7 @@ if LIVE:
         default='postgresql://postgres:postgres@localhost:5432/audio_box',        
         conn_max_age=600
     )}
-    
+
     # Tell Django to copy statics to the `staticfiles` directory
     # in your application directory on Render.
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')

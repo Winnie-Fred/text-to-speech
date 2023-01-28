@@ -14,7 +14,7 @@ from render_block import render_block_to_string
 from .forms import TypedInInputForm, FileUploadForm
 
 
-STATIC_FILES_DIR = os.path.basename(os.path.normpath(settings.STATIC_ROOT))
+STATIC_FILES_DIR = os.path.basename(os.path.normpath(settings.STATICFILES_DIRS[0]))
 # Create your views here.
 
 def home(request):
