@@ -1,3 +1,4 @@
+import os
 import gtts
 import socket
 import io
@@ -5,6 +6,7 @@ import docx2txt
 
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
+from django.conf import settings
 
 from PyPDF4 import PdfFileReader
 from render_block import render_block_to_string
@@ -12,6 +14,7 @@ from render_block import render_block_to_string
 from .forms import TypedInInputForm, FileUploadForm
 
 
+STATIC_FILES_DIR = os.path.basename(os.path.normpath(settings.STATIC_ROOT))
 # Create your views here.
 
 def home(request):
@@ -36,7 +39,7 @@ def convert_input_text(request):
             name_of_speech_file = "speech.mp3"
             try:
                 speech_audio_file = gtts.gTTS(text=text_to_be_converted, lang=lang, slow=False)  
-                speech_audio_file.save(f"static_in_dev/{name_of_speech_file}")
+                speech_audio_file.save(f"{STATIC_FILES_DIR}/{name_of_speech_file}")
             except (gtts.tts.gTTSError, socket.error, Exception) as e:
                 context["errors"] = [f"An error occured during the conversion: {e}"]
             else:
@@ -78,7 +81,7 @@ def convert_file_content(request):
 
                 try:
                     speech_audio_file = gtts.gTTS(text=text, lang=lang, slow=False)  
-                    speech_audio_file.save(f"static_in_dev/{name_of_speech_file}")
+                    speech_audio_file.save(f"{STATIC_FILES_DIR}/{name_of_speech_file}")
                 except (gtts.tts.gTTSError, socket.error, Exception) as e:
                     context["errors"] = [f"An error occured during the conversion: {e}"]
                 else:
