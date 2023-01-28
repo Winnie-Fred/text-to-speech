@@ -1,0 +1,20 @@
+databases:
+  - name: audio_box
+    databaseName: audio_box
+    user: audio_box
+
+services:
+  - type: web
+    name: audio_box
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn audio_box.wsgi:application"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: audio_box
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
