@@ -109,7 +109,7 @@ def convert_file_content(request):
                     return JsonResponse({"context":context})
 
                 try:
-                    speech_audio_file = gTTS(text=text, lang=lang, slow=False) 
+                    speech_audio_file = gTTS(text=text, lang=lang, slow=False, tld="com.ng") 
                     bytes_file = io.BytesIO()
                     speech_audio_file.write_to_fp(bytes_file)
 

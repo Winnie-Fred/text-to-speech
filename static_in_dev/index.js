@@ -304,7 +304,7 @@ if(isAdvancedUpload) {
 
         uploadIcon.innerHTML = 'check_circle';
         dragDropText.innerHTML = 'File Dropped Successfully!';
-        document.querySelector(".label").innerHTML = `drag & drop or <span class="browse-files"><input name="file_to_convert" accept=".txt,.doc,.docx,.pdf" type="file" class="default-file-input" style=""/><span class="browse-files-text" style="top: -23px; left: -20px;"> browse file</span></span>`;
+        document.querySelector(".label").innerHTML = `drag & drop or <span class="browse-files"><input name="file_to_convert" accept=".txt,.doc,.docx,.pdf" type="file" class="default-file-input" style=""/><span class="browse-files-text" style="top: -23px; left: -20px;"> browse file </span></span>`;
         uploadButton.innerHTML = `Upload`;
         
         fileName.innerHTML = nameOfFile;
@@ -322,7 +322,7 @@ removeFileButton.addEventListener("click", () => {
     fileInput.value = '';
     uploadIcon.innerHTML = 'file_upload';
     dragDropText.innerHTML = 'Drag & drop any file here';
-    document.querySelector(".label").innerHTML = `or <span class="browse-files"><input name="file_to_convert" accept=".txt,.doc,.docx,.pdf" type="file" class="default-file-input"/><span class="browse-files-text">browse file</span><span>from device</span></span>`;
+    document.querySelector(".label").innerHTML = `or <span class="browse-files"><input name="file_to_convert" accept=".txt,.doc,.docx,.pdf" type="file" class="default-file-input"/><span class="browse-files-text"> browse file </span><span>from device</span></span>`;
     uploadButton.innerHTML = `Upload`;
 });
 
