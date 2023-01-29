@@ -21,8 +21,11 @@ let removeFileButton = document.querySelector(".remove-file-icon");
 let uploadButton = document.querySelector(".upload-button");
 let textConvertButton = document.querySelector(".convert-entered-text-btn");
 let fileFlag = 0;
-let MAX_UPLOAD_SIZE = 20480;
-let MAX_UPLOAD_SIZE_KB = (MAX_UPLOAD_SIZE/1024).toFixed(1) + " KB"
+
+let MAX_UPLOAD_SIZE_IN_MB = 5
+let ONE_MB_IN_BYTES = 1024 * 1024
+let MAX_UPLOAD_SIZE_IN_BYTES = MAX_UPLOAD_SIZE_IN_MB * ONE_MB_IN_BYTES
+let MAX_UPLOAD_SIZE_KB = (MAX_UPLOAD_SIZE_IN_MB).toFixed(1) + " MB"
 
 document.addEventListener("click", function(e){
     const target = e.target.closest(".default-file-input");
@@ -50,10 +53,10 @@ document.body.addEventListener( 'change', function ( event ) {
             return
         } 
 
-        if (fileInput.files[0].size > MAX_UPLOAD_SIZE) {
+        if (fileInput.files[0].size > MAX_UPLOAD_SIZE_IN_BYTES) {
             fileFlag = 1;
             cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
-            document.querySelector('.select-file-text').textContent = "Please keep file size under " + MAX_UPLOAD_SIZE_KB + ". Current filesize: " + (fileInput.files[0].size/1024).toFixed(1) + " KB";            
+            document.querySelector('.select-file-text').textContent = "Please keep file size under " + MAX_UPLOAD_SIZE_KB + ". Current filesize: " + (fileInput.files[0].size/(1024*1024)).toFixed(1) + " MB";            
             fileInput.value = '';
             return
         }
@@ -63,7 +66,7 @@ document.body.addEventListener( 'change', function ( event ) {
         document.querySelector(".label").innerHTML = `drag & drop or <span class="browse-files"><input type="file" class="default-file-input" accept=".txt,.doc,.docx,.pdf" name="file_to_convert" style=""/><span class="browse-files-text" style="top: 0;"> browse file</span></span>`;
         uploadButton.innerHTML = `Upload`;
         fileName.innerHTML = nameOfFile;
-        fileSize.innerHTML = (fileInput.files[0].size/1024).toFixed(1) + " KB";
+        fileSize.innerHTML = (fileInput.files[0].size/(1024*1024)).toFixed(1) + " MB";
         uploadedFile.style.cssText = "display: flex;";
         progressBar.style.width = 0;
         fileFlag = 0;
@@ -294,10 +297,10 @@ if(isAdvancedUpload) {
             return
         } 
 
-        if (files[0].size > MAX_UPLOAD_SIZE) {
+        if (files[0].size > MAX_UPLOAD_SIZE_IN_BYTES) {
             fileFlag = 1;
             cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
-            document.querySelector('.select-file-text').textContent = "Please keep file size under " + MAX_UPLOAD_SIZE_KB + ". Current filesize: " + (files[0].size/1024).toFixed(1) + " KB";            
+            document.querySelector('.select-file-text').textContent = "Please keep file size under " + MAX_UPLOAD_SIZE_KB + ". Current filesize: " + (files[0].size/(1024*1024)).toFixed(1) + " MB";            
             fileInput.value = '';
             return
         }
@@ -308,7 +311,7 @@ if(isAdvancedUpload) {
         uploadButton.innerHTML = `Upload`;
         
         fileName.innerHTML = nameOfFile;
-        fileSize.innerHTML = (files[0].size/1024).toFixed(1) + " KB";
+        fileSize.innerHTML = (files[0].size/(1024*1024)).toFixed(1) + " MB";
         uploadedFile.style.cssText = "display: flex;";
         progressBar.style.width = 0;
         fileFlag = 0;

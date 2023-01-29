@@ -2,14 +2,15 @@ import os
 import socket
 import io
 import docx2txt
+import uuid 
 
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
-import uuid 
 
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
+
 
 from gtts.tts import gTTS, gTTSError
 from PyPDF4 import PdfFileReader
@@ -137,7 +138,7 @@ def convert_file_content(request):
 
                     html = render_block_to_string('conversion_successful.html', 'content', context, request=request)
                     return JsonResponse({"html":html, "context":context}, safe=False)
-        else:         
+        else:   
             errors = []
             for _, value in form.errors.items():
                 errors.append(value)
