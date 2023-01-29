@@ -45,6 +45,11 @@ def convert_input_text(request):
                         # Create dir if it does not exist
                         os.makedirs("speech_folder")
                     speech_audio_file.save(f"speech_folder/{name_of_speech_file}")
+                    print("File saved, here is proof: ")
+                    with open('sample.txt', 'w+') as f: 
+                        f.write("Hello world!!!")
+                    with open('sample.txt', 'w+') as f: 
+                        print(f.read())
                 except (gtts.tts.gTTSError, socket.error, Exception) as e:
                     context["errors"] = [f"An error occured during the conversion: {e}"]
                 else:                                   
