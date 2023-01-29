@@ -36,52 +36,49 @@ def home(request):
     return render(request, 'index.html', context)
 
 def convert_input_text(request):
-    try:
-        context = {"speech":None, "errors":[], "preloader":False}
-        lang = 'en'
-        if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            form = TypedInInputForm(request.POST)
-            if form.is_valid():
-                data = form.cleaned_data
-                request.session['form'] = data
-                text_to_be_converted = data.get('text_to_convert')
-                file_name = "speech"
-                try:
-                    speech_audio_file = gTTS(text=text_to_be_converted, lang=lang, slow=False) 
-                    bytes_file = io.BytesIO()
-                    speech_audio_file.write_to_fp(bytes_file)
+    context = {"speech":None, "errors":[], "preloader":False}
+    lang = 'en'
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        form = TypedInInputForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            request.session['form'] = data
+            text_to_be_converted = data.get('text_to_convert')
+            file_name = "speech"
+            try:
+                speech_audio_file = gTTS(text=text_to_be_converted, lang=lang, slow=False, tld="com.ng") 
+                bytes_file = io.BytesIO()
+                speech_audio_file.write_to_fp(bytes_file)
 
-                    # Upload the mp3 and get its URL
-                    # ==============================
+                # Upload the mp3 and get its URL
+                # ==============================
 
-                    # Upload the mp3.
-                    # Set the asset's public ID and allow overwriting the asset with new versions
-                    cloudinary.uploader.upload(file=bytes_file.getvalue(), public_id=file_name, unique_filename = False, overwrite=True, resource_type='video')
+                # Upload the mp3.
+                # Set the asset's public ID and allow overwriting the asset with new versions
+                cloudinary.uploader.upload(file=bytes_file.getvalue(), public_id=file_name, unique_filename = False, overwrite=True, resource_type='video')
 
-                    # Build the URL for the image and save it in the variable 'src_url'
-                    # src_url = cloudinary.CloudinaryVideo("my_file").build_url()
-                                        
-                    mp3_info=cloudinary.api.resource(file_name, resource_type='video')
-                    src_url = mp3_info['secure_url']
+                # Build the URL for the image and save it in the variable 'src_url'
+                # src_url = cloudinary.CloudinaryVideo("my_file").build_url()
+                                    
+                mp3_info=cloudinary.api.resource(file_name, resource_type='video')
+                src_url = mp3_info['secure_url']
 
-                    # Log the mp3 URL to the console. 
-                    # Copy this URL in a browser tab to generate the image on the fly.
-                except (gTTSError, socket.error, Exception) as e:
-                    context["errors"] = [f"An error occured during the conversion: {e}"]
-                else:                                   
-                    context["speech_mp3"] = src_url
+                # Log the mp3 URL to the console. 
+                # Copy this URL in a browser tab to generate the image on the fly.
+            except (gTTSError, socket.error, Exception) as e:
+                context["errors"] = [f"An error occured during the conversion: {e}"]
+            else:                                   
+                context["speech_mp3"] = src_url
 
-                    html = render_block_to_string('conversion_successful.html', 'content', context, request=request)
-                    return JsonResponse({"html":html, "context":context}, safe=False)
-            else:
-                errors = []
-                for _, value in form.errors.items():
-                    errors.append(value)
-                context["errors"] = errors
-            return JsonResponse({"context":context})
-        return redirect('text_to_speech:home')
-    except Exception as e:
-        print("This is the error: ", e)
+                html = render_block_to_string('conversion_successful.html', 'content', context, request=request)
+                return JsonResponse({"html":html, "context":context}, safe=False)
+        else:
+            errors = []
+            for _, value in form.errors.items():
+                errors.append(value)
+            context["errors"] = errors
+        return JsonResponse({"context":context})
+    return redirect('text_to_speech:home')
 
 def generate_unique_file_name():
     file_name = 'speech'
@@ -90,8 +87,7 @@ def generate_unique_file_name():
 
 def convert_file_content(request):
     context = {"speech":None, "errors":[], "preloader":False}
-    name_of_speech_file = "speech.mp3"
-    lang = 'en'
+    lang='en'
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest' and 'file_to_convert' in request.FILES:
         form = FileUploadForm(request.POST, request.FILES or None)
         if form.is_valid():
@@ -109,7 +105,6 @@ def convert_file_content(request):
                     elif file_name.endswith(".doc") or file_name.endswith(".docx"):
                         text = extract_text_from_docx(uploaded_file)
                 except Exception as e:
-                    print(f"An exception occured with the file: {e}")
                     context["errors"] = [f"An error occured with the file: {e}"]
                     return JsonResponse({"context":context})
 

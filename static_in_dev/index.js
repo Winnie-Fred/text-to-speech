@@ -123,8 +123,8 @@ async function uploadToServer(elementName, objectToUpload, csrftoken, url) {
         console.log("response status text: ", response.statusText)
 
         const error_msg = ["An error occured while trying to communicate with the server.",
-                    "Sorry about that. Please try again."
-                    ];
+                            "Sorry about that. Please try again."
+                            ];
 
         displayError(error_msg);
 
