@@ -6,7 +6,7 @@ import docx2txt
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
-import json
+import uuid 
 
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
@@ -35,6 +35,7 @@ def home(request):
     context['file_input_form'] = file_input_form
     return render(request, 'index.html', context)
 
+
 def convert_input_text(request):
     context = {"speech":None, "errors":[], "preloader":False}
     lang = 'en'
@@ -44,7 +45,7 @@ def convert_input_text(request):
             data = form.cleaned_data
             request.session['form'] = data
             text_to_be_converted = data.get('text_to_convert')
-            file_name = "speech"
+            file_name = "speech-" + generate_random_id()
             try:
                 speech_audio_file = gTTS(text=text_to_be_converted, lang=lang, slow=False, tld="com.ng") 
                 bytes_file = io.BytesIO()
@@ -80,9 +81,8 @@ def convert_input_text(request):
         return JsonResponse({"context":context})
     return redirect('text_to_speech:home')
 
-def generate_unique_file_name():
-    file_name = 'speech'
-    return file_name
+def generate_random_id():
+    return uuid.uuid4().hex[:6].upper()
 
 
 def convert_file_content(request):
@@ -107,6 +107,8 @@ def convert_file_content(request):
                 except Exception as e:
                     context["errors"] = [f"An error occured with the file: {e}"]
                     return JsonResponse({"context":context})
+
+                file_name  += generate_random_id()
 
                 try:
                     speech_audio_file = gTTS(text=text, lang=lang, slow=False, tld="com.ng") 
