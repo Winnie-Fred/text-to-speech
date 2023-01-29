@@ -6,8 +6,6 @@ const backButton = document.getElementById("back-button");
 const playerArea = document.getElementById("mediaPlayer");
 const playButton = document.getElementById("playState");
 const stopButton = document.getElementById("stopItem");
-const nextButton = document.getElementById("nextItem");
-const prevButton = document.getElementById("backItem");
 const durationLabel = document.getElementById("currentDuration");
 const audioTitleLabel = document.getElementById("audioTitleLabel");
 const audioPlayer = document.getElementById("audioPlayer");
@@ -17,6 +15,7 @@ let currentIndex = 0;
 let dataAvailable = false;
 let currentLength;
 let timer;
+let downloadBtn = document.getElementById("downloadBtn");
 
 timer = setInterval(updateDurationLabel, 100);
 
@@ -36,6 +35,7 @@ const playMusic = () => {
         clearInterval(timer);
     }
 };
+
 
 playButton.addEventListener("click", playMusic, false);
 
@@ -65,6 +65,14 @@ function stopAudio() {
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
     updateDurationLabel();
+}
+
+// Pauses audio
+function pauseAudio() {
+    console.log("Paused")
+    playerArea.classList.toggle("play");
+    audioPlayer.pause();
+    clearInterval(timer);
 }
 
 // Updates the duration label

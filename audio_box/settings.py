@@ -15,6 +15,10 @@ from pathlib import Path
 
 import dj_database_url
 
+from dotenv import load_dotenv
+load_dotenv()
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -30,7 +34,7 @@ LIVE = 'RENDER' in os.environ
 DEBUG = 'RENDER' not in os.environ
 
 ALLOWED_HOSTS = []
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+RENDER_EXTERNAL_HOSTNAME = os.getenv('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:    
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
@@ -135,8 +139,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [BASE_DIR / 'static_in_dev']
 
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'speech_files'
+MEDIA_URL = '/audio_box/media/' #  do this trick to use one acct for multiple files
+MEDIA_ROOT = BASE_DIR / 'media'
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.VideoMediaCloudinaryStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -145,7 +150,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 if LIVE:
-    SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
+    SECRET_KEY = os.getenv('SECRET_KEY', default='your secret key')
     DATABASES = {
     'default': dj_database_url.config(
         # Feel free to alter this value to suit your needs.        
@@ -161,3 +166,8 @@ if LIVE:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY':  os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET':  os.getenv('CLOUDINARY_API_SECRET')
+}
