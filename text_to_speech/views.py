@@ -41,21 +41,23 @@ def convert_input_text(request):
                 name_of_speech_file = "speech.mp3"
                 try:
                     speech_audio_file = gTTS(text=text_to_be_converted, lang=lang, slow=False) 
-                    if not os.path.isdir("speech_folder"):
+                    if not os.path.isdir("speech_files"):
                         # Create dir if it does not exist
-                        os.makedirs("speech_folder")
-                    speech_audio_file.save(f"speech_folder/{name_of_speech_file}")
-                    if os.path.isdir(f"speech_folder/{name_of_speech_file}"):
-                        print("It created the file")
+                        os.makedirs("speech_files")
+                    speech_audio_file.save(f"speech_files/{name_of_speech_file}")
+                    if os.path.isdir(f"speech_files/{name_of_speech_file}"):
+                        print("it created the speech file")
                     else:
-                        print("It did not create the file")
+                        print("it did not")
+
+                    
                 except (gTTSError, socket.error, Exception) as e:
                     context["errors"] = [f"An error occured during the conversion: {e}"]
                 else:                                   
                     file_name, _ = generate_unique_file_name()
                     new_speech_file = SpeechFile()
                     new_speech_file.name = file_name
-                    new_speech_file.mp3.save(file_name, File(open(f"speech_folder/{name_of_speech_file}", "rb")))
+                    new_speech_file.mp3.save(file_name, File(open(f"speech_files/{name_of_speech_file}", "rb")))
                     new_speech_file.save()                   
                     speech_file = SpeechFile.objects.get(name=file_name)
                     context["speech_mp3"] = speech_file.mp3.url
