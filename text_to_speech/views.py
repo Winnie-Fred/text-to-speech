@@ -1,5 +1,5 @@
 import os
-import gtts
+from gtts.tts import gTTS, gTTSError
 import socket
 import io
 import docx2txt
@@ -40,17 +40,16 @@ def convert_input_text(request):
                 text_to_be_converted = data.get('text_to_convert')
                 name_of_speech_file = "speech.mp3"
                 try:
-                    speech_audio_file = gtts.gTTS(text=text_to_be_converted, lang=lang, slow=False) 
+                    speech_audio_file = gTTS(text=text_to_be_converted, lang=lang, slow=False) 
                     if not os.path.isdir("speech_folder"):
                         # Create dir if it does not exist
                         os.makedirs("speech_folder")
                     speech_audio_file.save(f"speech_folder/{name_of_speech_file}")
-                    print("File saved, here is proof: ")
-                    with open('sample.txt', 'w+') as f: 
-                        f.write("Hello world!!!")
-                    with open('sample.txt', 'w+') as f: 
-                        print(f.read())
-                except (gtts.tts.gTTSError, socket.error, Exception) as e:
+                    if os.path.isdir(f"speech_folder/{name_of_speech_file}"):
+                        print("It created the file")
+                    else:
+                        print("It did not create the file")
+                except (gTTSError, socket.error, Exception) as e:
                     context["errors"] = [f"An error occured during the conversion: {e}"]
                 else:                                   
                     file_name, _ = generate_unique_file_name()
@@ -70,8 +69,8 @@ def convert_input_text(request):
                 context["errors"] = errors
             return JsonResponse({"context":context})
         return redirect('text_to_speech:home')
-    except Exception:
-        print("This is the error: ")
+    except Exception as e:
+        print("This is the error: ", e)
 
 def generate_unique_file_name():
     speech_files = SpeechFile.objects.all()
@@ -108,12 +107,12 @@ def convert_file_content(request):
                     return JsonResponse({"context":context})
 
                 try:
-                    speech_audio_file = gtts.gTTS(text=text, lang=lang, slow=False)  
+                    speech_audio_file = gTTS(text=text, lang=lang, slow=False)  
                     if not os.path.isdir("speech_folder"):
                         # Create dir if it does not exist
                         os.makedirs("speech_folder")
                     speech_audio_file.save(f"speech_folder/{name_of_speech_file}")
-                except (gtts.tts.gTTSError, socket.error, Exception) as e:
+                except (gTTSError, socket.error, Exception) as e:
                     context["errors"] = [f"An error occured during the conversion: {e}"]
                 else:
                     file_name, _ = generate_unique_file_name()
