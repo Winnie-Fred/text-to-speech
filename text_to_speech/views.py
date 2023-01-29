@@ -8,6 +8,7 @@ import uuid
 from django.shortcuts import render, redirect
 from django.core.files import File
 from django.http import JsonResponse
+from django.conf import settings
 
 from PyPDF4 import PdfFileReader
 from render_block import render_block_to_string
@@ -44,8 +45,8 @@ def convert_input_text(request):
                     if not os.path.isdir("speech_files"):
                         # Create dir if it does not exist
                         os.makedirs("speech_files")
-                    speech_audio_file.save(f"speech_files/{name_of_speech_file}")
-                    if os.path.isdir(f"speech_files/{name_of_speech_file}"):
+                    speech_audio_file.save(f"{settings.MEDIA_ROOT}/{name_of_speech_file}")
+                    if os.path.isdir(f"{settings.MEDIA_ROOT}/{name_of_speech_file}"):
                         print("it created the speech file")
                     else:
                         print("it did not")
@@ -57,7 +58,7 @@ def convert_input_text(request):
                     file_name, _ = generate_unique_file_name()
                     new_speech_file = SpeechFile()
                     new_speech_file.name = file_name
-                    new_speech_file.mp3.save(file_name, File(open(f"speech_files/{name_of_speech_file}", "rb")))
+                    new_speech_file.mp3.save(file_name, File(open(f"{settings.MEDIA_ROOT}/{name_of_speech_file}", "rb")))
                     new_speech_file.save()                   
                     speech_file = SpeechFile.objects.get(name=file_name)
                     context["speech_mp3"] = speech_file.mp3.url
