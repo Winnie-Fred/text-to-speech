@@ -453,7 +453,7 @@ body {
     padding: 1.2em;
     background: #ffffff;
     border-radius: 10px;
-    width: 60vw;
+    /* width: 60vw; */
     max-width: 600px;
   }
   
