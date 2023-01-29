@@ -36,17 +36,20 @@ def convert_input_text(request):
         if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
             form = TypedInInputForm(request.POST)
             if form.is_valid():
+                print("form is valid")
                 data = form.cleaned_data
                 request.session['form'] = data
                 text_to_be_converted = data.get('text_to_convert')
                 name_of_speech_file = "speech.mp3"
                 try:
                     speech_audio_file = gTTS(text=text_to_be_converted, lang=lang, slow=False) 
+                    print("converted")
                     if not os.path.isdir("speech_files"):
                         # Create dir if it does not exist
                         os.makedirs("speech_files")
-                    speech_audio_file.save(f"{settings.MEDIA_ROOT}/{name_of_speech_file}")
-                    if os.path.isdir(f"{settings.MEDIA_ROOT}/{name_of_speech_file}"):
+                    speech_audio_file.save(rf"{settings.MEDIA_ROOT}\{name_of_speech_file}")
+                    print(rf"{settings.MEDIA_ROOT}\{name_of_speech_file}")
+                    if os.path.isdir(rf"{settings.MEDIA_ROOT}"):
                         print("it created the speech file")
                     else:
                         print("it did not")
@@ -58,7 +61,7 @@ def convert_input_text(request):
                     file_name, _ = generate_unique_file_name()
                     new_speech_file = SpeechFile()
                     new_speech_file.name = file_name
-                    new_speech_file.mp3.save(file_name, File(open(f"{settings.MEDIA_ROOT}/{name_of_speech_file}", "rb")))
+                    new_speech_file.mp3.save(file_name, File(open(rf"{settings.MEDIA_ROOT}\{name_of_speech_file}", "rb")))
                     new_speech_file.save()                   
                     speech_file = SpeechFile.objects.get(name=file_name)
                     context["speech_mp3"] = speech_file.mp3.url
