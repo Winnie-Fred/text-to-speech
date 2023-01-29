@@ -1047,6 +1047,7 @@ body {
     display: grid;
     place-items: center;
     transition: background-color 0.3s;
+    min-height: 100vh;
   }
 
   .loader main {
