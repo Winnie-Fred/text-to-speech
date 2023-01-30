@@ -7,7 +7,7 @@ class TypedInInputForm(forms.Form):
 
 class FileUploadForm(forms.Form):
 
-    MAX_UPLOAD_SIZE_IN_MB = 5
+    MAX_UPLOAD_SIZE_IN_MB = 50
     ONE_MB_IN_BYTES = 1024 * 1024
     MAX_UPLOAD_SIZE_IN_BYTES = MAX_UPLOAD_SIZE_IN_MB * ONE_MB_IN_BYTES
 

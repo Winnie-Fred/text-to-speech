@@ -22,7 +22,7 @@ let uploadButton = document.querySelector(".upload-button");
 let textConvertButton = document.querySelector(".convert-entered-text-btn");
 let fileFlag = 0;
 
-let MAX_UPLOAD_SIZE_IN_MB = 5
+let MAX_UPLOAD_SIZE_IN_MB = 50
 let ONE_MB_IN_BYTES = 1024 * 1024
 let MAX_UPLOAD_SIZE_IN_BYTES = MAX_UPLOAD_SIZE_IN_MB * ONE_MB_IN_BYTES
 let MAX_UPLOAD_SIZE_KB = (MAX_UPLOAD_SIZE_IN_MB).toFixed(1) + " MB"
