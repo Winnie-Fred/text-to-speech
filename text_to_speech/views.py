@@ -56,7 +56,7 @@ def convert_input_text(request):
                 # ==============================
 
                 # Upload the mp3.
-                # Set the asset's public ID and allow overwriting the asset with new versions
+                # Set the asset's public ID and allow overwriting  asset with new versions
                 cloudinary.uploader.upload(file=bytes_file.getvalue(), public_id=file_name, unique_filename = False, overwrite=True, resource_type='video')
 
                 # Build the URL for the image and save it in the variable 'src_url'
