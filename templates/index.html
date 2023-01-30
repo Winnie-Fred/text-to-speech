@@ -1,57 +1,97 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% load static %} {% block content %}
 
-{% load static %}
+<div class="detail">Simply copy and paste text in the box below:</div>
+<div class="_segment">
+  <div class="_segment_form_1">
+    <span class="cannot-leave-blank-message">
+      <span class="cannot-leave-blank-message-main-wrap">
+        <span class="material-icons-outlined">error</span>
+        <p>Please fill in this field first</p>
+      </span>
 
-{% block content %}    
-
-    <div class="detail">Simply copy and paste text in the box below:</div>
-    <span class="cannot-leave-blank-message"> <span class="material-icons-outlined">error</span> Please fill in this field first <span class="material-icons-outlined cancel-alert-button-text">cancel</span> </span>
+      <span class="material-icons-outlined cancel-alert-button-text"
+        >cancel</span
+      >
+    </span>
     <form>
-        {% csrf_token %}
-        <div class="last">
-            <div class="container">
-                <div class="header">
-                    <img src="{% static 'images/cancel.png' %}" alt=""class="clear">
-                </div>
-                {{ text_input_form.text_to_convert }}
-            </div>
+      {% csrf_token %}
+      <div class="last">
+        <div class="container">
+          <div class="header">
+            <img src="{% static 'images/cancel.png' %}" alt="" class="clear" />
+          </div>
+          {{ text_input_form.text_to_convert }}
         </div>
+      </div>
 
-        <div class="speak">            
-            <div><button class="convert-entered-text-btn" name="convert_entered_text" type="button" id="speak">Convert</button></div>
-        </div>    
+      <div class="speak">
+        <div>
+          <button
+            class="convert-entered-text-btn"
+            name="convert_entered_text"
+            type="button"
+            id="speak"
+          >
+            Convert
+          </button>
+        </div>
+      </div>
     </form>
-
-    <div class="alternative-text">
-        OR
-    </div>
-
-    <!--Drag and drop files-->
+  </div>
+  <div class="alternative-text-wrapper">
+    <hr />
+    <p class="alternative-text">OR</p>
+    <hr />
+  </div>
+  <!--Drag and drop files-->
+  <div class="_segment_form_2">
     <div class="accepted-files">upload a TXT, DOC, DOCX or PDF file</div>
     <form class="form-container" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="upload-files-container">
-            <div class="drag-file-area">
-                <span class="material-icons-outlined upload-icon"> file_upload </span>
-                <h3 class="dynamic-message"> Drag & drop any file here </h3>
-                <label class="label"> or <span class="browse-files"> {{ file_input_form.file_to_convert }} <span class="browse-files-text">browse file</span> <span>from device</span> </span> </label>
-            </div>
-            <span class="cannot-upload-message"> <span class="material-icons-outlined">error</span> <span class="select-file-text"> Please select a file first </span> <span class="material-icons-outlined cancel-alert-button-file">cancel</span> </span>
-            <div class="file-block">
-                <div class="file-info"> <span class="material-icons-outlined file-icon">description</span> <span class="file-name"> </span> | <span class="file-size">  </span> </div>
-                <span class="material-icons remove-file-icon">delete</span>
-                <div class="progress-bar"> </div>
-            </div>
-            {% comment %} <div class="speak">
-                <div><a class="open-modal upload-a" id="speak" href="#modal">Speak</a></div>
-            </div> {% endcomment %}
-
-            <button type="button" class="upload-button">Upload</button>
+      {% csrf_token %}
+      <div class="upload-files-container">
+        <div class="drag-file-area">
+          <span class="material-icons-outlined upload-icon"> file_upload </span>
+          <h3 class="dynamic-message">Drag & drop any file here</h3>
+          <label class="label">
+            or
+            <span class="browse-files">
+              {{ file_input_form.file_to_convert }}
+              <span class="browse-files-text">browse file</span>
+              <span>from device</span>
+            </span>
+          </label>
         </div>
+        <span class="cannot-upload-message">
+          <span class="material-icons-outlined">error</span>
+          <span class="select-file-text"> Please select a file first </span>
+          <span class="material-icons-outlined cancel-alert-button-file"
+            >cancel</span
+          >
+        </span>
+        <div class="file-block">
+          <div class="file-info">
+            <span class="material-icons-outlined file-icon">description</span>
+            <span class="file-name"> </span> | <span class="file-size"> </span>
+          </div>
+          <span class="material-icons remove-file-icon">delete</span>
+          <div class="progress-bar"></div>
+        </div>
+        {% comment %}
+        <div class="speak">
+          <div>
+            <a class="open-modal upload-a" id="speak" href="#modal">Speak</a>
+          </div>
+        </div>
+        {% endcomment %}
+
+        <button type="button" class="upload-button">Upload</button>
+      </div>
     </form>
-    <!--Drag and drop files-->
-    
-    <script src="{% static 'index.js' %}"></script>
+  </div>
+
+  <!--Drag and drop files-->
+</div>
+
+<script src="{% static 'index.js' %}"></script>
 
 {% endblock content %}
-    

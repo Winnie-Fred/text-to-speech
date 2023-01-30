@@ -22,7 +22,7 @@ let uploadButton = document.querySelector(".upload-button");
 let textConvertButton = document.querySelector(".convert-entered-text-btn");
 let fileFlag = 0;
 
-let MAX_UPLOAD_SIZE_IN_MB = 50
+let MAX_UPLOAD_SIZE_IN_MB = 5
 let ONE_MB_IN_BYTES = 1024 * 1024
 let MAX_UPLOAD_SIZE_IN_BYTES = MAX_UPLOAD_SIZE_IN_MB * ONE_MB_IN_BYTES
 let MAX_UPLOAD_SIZE_KB = (MAX_UPLOAD_SIZE_IN_MB).toFixed(1) + " MB"
@@ -138,7 +138,8 @@ async function uploadToServer(elementName, objectToUpload, csrftoken, url) {
 function startPreloader () {
     document.querySelector(".entire-content-wrapper").innerHTML = `<div class="div-wrapper-for-loaded-content"><div id="loader">
     <main>
-        <svg class="ip" viewBox="0 0 256 128" width="256px" height="50px" xmlns="http://www.w3.org/2000/svg">
+    <div class="preloader_wrapper">
+    <svg class="ip" viewBox="0 0 256 128" width="256px" height="50px" xmlns="http://www.w3.org/2000/svg">
             <defs>
                 <linearGradient id="grad1" x1="0" y1="0" x2="1" y2="0">
                     <stop offset="0%" stop-color="#5ebd3e" />
@@ -164,6 +165,7 @@ function startPreloader () {
                 </g>
             </g>
         </svg>
+    </div>
         <div class="loading-text">Processing...</div>
         <div class="extra-loading-text">Please hold on...This may take a while</div>
     </main>
@@ -189,7 +191,7 @@ function addBackButton () {
     var header = document.querySelector("header")
     var spanELem = document.createElement("span");
     spanELem.className = "return-div";
-    spanELem.innerHTML = `<a id="return-button" href="/" title="Back" class="close"><svg id="return-arrow" class="fa-solid fa-arrow-left-long" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M109.3 288L480 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-370.7 0 73.4-73.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-128 128c-12.5 12.5-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 288z"/></svg><span>Return</span></a>`;
+    spanELem.innerHTML = `<a id="return-button" href="/" title="Back" class="close"><svg id="return-arrow" class="fa-solid fa-arrow-left-long" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M109.3 288L480 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-370.7 0 73.4-73.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-128 128c-12.5 12.5-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 288z"/></svg><p>Return</p></a>`;
     header.parentNode.insertBefore(spanELem, header.nextSibling);
 }
 
