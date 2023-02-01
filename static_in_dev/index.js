@@ -45,11 +45,11 @@ document.body.addEventListener( 'change', function ( event ) {
         fileInput = event.target;
         const nameOfFile = fileInput.files[0].name
         const nameOfFileLowercased = nameOfFile.toLowerCase();
-        if (!(nameOfFileLowercased.endsWith('.txt') || nameOfFileLowercased.endsWith('.doc') || nameOfFileLowercased.endsWith('.docx') || nameOfFileLowercased.endsWith('.pdf'))) {
+        if (!(nameOfFileLowercased.endsWith('.txt') || nameOfFileLowercased.endsWith('.docx') || nameOfFileLowercased.endsWith('.pdf'))) {
             fileFlag = 1;
             fileInput.value = '';
             cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
-            document.querySelector('.select-file-text').textContent = "Please upload only .txt, .doc, .docx or .pdf files";
+            document.querySelector('.select-file-text').textContent = "Please upload only .txt, .docx or .pdf files";
             return
         } 
 
@@ -63,7 +63,7 @@ document.body.addEventListener( 'change', function ( event ) {
 
         uploadIcon.innerHTML = 'check_circle';
         dragDropText.innerHTML = 'File Dropped Successfully!';
-        document.querySelector(".label").innerHTML = `drag & drop or <span class="browse-files"><input type="file" class="default-file-input" accept=".txt,.doc,.docx,.pdf" name="file_to_convert" style=""/><span class="browse-files-text" style="top: 0;"> browse file</span></span>`;
+        document.querySelector(".label").innerHTML = `drag & drop or <span class="browse-files"><input type="file" class="default-file-input" accept=".txt,.docx,.pdf" name="file_to_convert" style=""/><span class="browse-files-text" style="top: 0;"> browse file</span></span>`;
         uploadButton.innerHTML = `Upload`;
         fileName.innerHTML = nameOfFile;
         fileSize.innerHTML = (fileInput.files[0].size/(1024*1024)).toFixed(1) + " MB";
@@ -291,11 +291,11 @@ if(isAdvancedUpload) {
         nameOfFile = files[0].name;
         nameOfFileLowercased = nameOfFile.toLowerCase();
 
-        if (!(nameOfFileLowercased.endsWith('.txt') || nameOfFileLowercased.endsWith('.doc') || nameOfFileLowercased.endsWith('.docx') || nameOfFileLowercased.endsWith('.pdf'))) {
+        if (!(nameOfFileLowercased.endsWith('.txt') || nameOfFileLowercased.endsWith('.docx') || nameOfFileLowercased.endsWith('.pdf'))) {
             fileFlag = 1;
             fileInput.value = '';
             cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
-            document.querySelector('.select-file-text').textContent = "Please upload only .txt, .doc, .docx or .pdf files";
+            document.querySelector('.select-file-text').textContent = "Please upload only .txt, .docx or .pdf files";
             return
         } 
 
@@ -309,7 +309,7 @@ if(isAdvancedUpload) {
 
         uploadIcon.innerHTML = 'check_circle';
         dragDropText.innerHTML = 'File Dropped Successfully!';
-        document.querySelector(".label").innerHTML = `drag & drop or <span class="browse-files"><input name="file_to_convert" accept=".txt,.doc,.docx,.pdf" type="file" class="default-file-input" style=""/><span class="browse-files-text" style="top: -23px; left: -20px;"> browse file </span></span>`;
+        document.querySelector(".label").innerHTML = `drag & drop or <span class="browse-files"><input name="file_to_convert" accept=".txt,.docx,.pdf" type="file" class="default-file-input" style=""/><span class="browse-files-text" style="top: -23px; left: -20px;"> browse file </span></span>`;
         uploadButton.innerHTML = `Upload`;
         
         fileName.innerHTML = nameOfFile;
@@ -327,7 +327,7 @@ removeFileButton.addEventListener("click", () => {
     fileInput.value = '';
     uploadIcon.innerHTML = 'file_upload';
     dragDropText.innerHTML = 'Drag & drop any file here';
-    document.querySelector(".label").innerHTML = `or <span class="browse-files"><input name="file_to_convert" accept=".txt,.doc,.docx,.pdf" type="file" class="default-file-input"/><span class="browse-files-text"> browse file </span><span>from device</span></span>`;
+    document.querySelector(".label").innerHTML = `or <span class="browse-files"><input name="file_to_convert" accept=".txt,.docx,.pdf" type="file" class="default-file-input"/><span class="browse-files-text"> browse file </span><span>from device</span></span>`;
     uploadButton.innerHTML = `Upload`;
 });
 

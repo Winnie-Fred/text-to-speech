@@ -106,7 +106,7 @@ def convert_file_content(request):
                         text = extract_text_from_pdf(read_uploaded_file)
                     elif file_name.endswith(".txt"):
                         text = extract_text_from_txt(uploaded_file)
-                    elif file_name.endswith(".doc") or file_name.endswith(".docx"):
+                    elif file_name.endswith(".docx"):
                         text = extract_text_from_docx(uploaded_file)
                 except Exception as e:
                     context["errors"] = [f"An error occured with the file: {e}"]

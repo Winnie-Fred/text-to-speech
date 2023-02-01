@@ -11,7 +11,7 @@ class FileUploadForm(forms.Form):
     ONE_MB_IN_BYTES = 1024 * 1024
     MAX_UPLOAD_SIZE_IN_BYTES = MAX_UPLOAD_SIZE_IN_MB * ONE_MB_IN_BYTES
 
-    file_to_convert = forms.FileField(widget=forms.ClearableFileInput(attrs={'class':'default-file-input', 'accept':'.txt,.doc,.docx,.pdf'}), required=True,)
+    file_to_convert = forms.FileField(widget=forms.ClearableFileInput(attrs={'class':'default-file-input', 'accept':'.txt,.docx,.pdf'}), required=True,)
     
     def clean(self):
         cleaned_data = super(FileUploadForm, self).clean()
@@ -21,8 +21,8 @@ class FileUploadForm(forms.Form):
             print("file size: ", file.size)
             filename = file.name.lower()
             print("file name: ", filename)
-            if not ((filename.endswith('.txt') or filename.endswith('.doc') or filename.endswith('.docx') or filename.endswith('.pdf'))):
-                raise forms.ValidationError("Please upload only .txt, .doc, .docx or .pdf files")
+            if not ((filename.endswith('.txt') or filename.endswith('.docx') or filename.endswith('.pdf'))):
+                raise forms.ValidationError("Please upload only .txt, .docx or .pdf files")
 
             if file.size > self.MAX_UPLOAD_SIZE_IN_BYTES:
                 raise forms.ValidationError(_('Please keep filesize under %s. Current filesize: %s') % (filesizeformat(self.MAX_UPLOAD_SIZE_IN_BYTES), filesizeformat(file.size)))
