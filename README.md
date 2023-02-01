@@ -1,2 +1,2 @@
 # audio-box
-Paid job to complete a text-to-speech system
+Simple text-to-speech web-based application using Django and Google Translate text-to-speech (with gtts Python library)

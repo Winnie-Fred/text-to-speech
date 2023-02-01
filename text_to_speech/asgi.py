@@ -1,5 +1,5 @@
 """
-ASGI config for audio_box project.
+ASGI config for text_to_speech project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'audio_box.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'text_to_speech.settings')
 
 application = get_asgi_application()

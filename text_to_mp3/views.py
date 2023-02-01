@@ -71,6 +71,9 @@ def convert_input_text(request):
                 context["errors"] = [f"An error occured during the conversion: {e}"]
             else:                                   
                 context["speech_mp3"] = src_url
+                context["file_name"] = file_name + '.mp3'
+                if len(file_name) > 15:
+                    context['file_name'] = file_name[:15] + '...' + '.mp3'
 
                 html = render_block_to_string('conversion_successful.html', 'content', context, request=request)
                 return JsonResponse({"html":html, "context":context}, safe=False)
@@ -80,7 +83,7 @@ def convert_input_text(request):
                 errors.append(value)
             context["errors"] = errors
         return JsonResponse({"context":context})
-    return redirect('text_to_speech:home')
+    return redirect('text_to_mp3:home')
 
 def generate_random_id():
     return uuid.uuid4().hex[:6].upper()
@@ -135,6 +138,9 @@ def convert_file_content(request):
                     context["errors"] = [f"An error occured during the conversion: {e}"]
                 else:                                   
                     context["speech_mp3"] = src_url
+                    context["file_name"] = file_name + '.mp3'
+                    if len(file_name) > 15:
+                        context['file_name'] = file_name[:15] + '...' + '.mp3'
 
                     html = render_block_to_string('conversion_successful.html', 'content', context, request=request)
                     return JsonResponse({"html":html, "context":context}, safe=False)
@@ -144,7 +150,7 @@ def convert_file_content(request):
                 errors.append(value)
             context["errors"] = errors
         return JsonResponse({"context":context})
-    return redirect('text_to_speech:home')
+    return redirect('text_to_mp3:home')
 
 
 def extract_text_from_pdf(file):

@@ -50,7 +50,6 @@ header > * {
 header img {
   width: 50px;
   height: 50px;
-  border-radius: 100px;
 }
 
 body > div:nth-child(2) {
@@ -332,7 +331,6 @@ textarea {
   header img {
     width: 50px;
     height: 50px;
-    border-radius: 100px;
   }
 
   body > div:nth-child(2) {
@@ -451,7 +449,7 @@ body {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  background-color: #7b2cbf;
+  background-color: #fe8700;
   padding: 0px 20px;
 }
 
@@ -667,7 +665,7 @@ body {
 .convert-entered-text-btn {
   font-family: "Montserrat";
   background-color: #fff !important;
-  color: #7b2cbf !important;
+  color: #fe8700 !important;
   display: flex !important;
   align-items: center !important;
   font-size: 18px !important;
@@ -680,7 +678,7 @@ body {
 
 .convert-entered-text-btn {
   color: #fff !important;
-  background-color: #7b2cbf !important;
+  background-color: #fe8700 !important;
 }
 
 .upload-a {
@@ -1523,3 +1521,35 @@ audio {
 }
 
 /* Error animation plus error message */
+
+/* Header contact info */
+.mail-icon {
+  margin-right: 10px;
+  position: relative;
+  top: 5px;
+}
+
+.github-icon {
+  margin-right: 10px;
+  height: 17px;
+  position: relative;
+  top: 2px;
+}
+
+.mail-text, .github-text {
+  font-size: 18px;
+  text-decoration: none;
+}
+
+.mail-text:hover, .github-text:hover {
+  color:rgba(153, 127, 243, 0.9);
+}
+
+.mail-text:active, .github-text:active {
+  color:hsl(223, 90%, 15%);
+}
+
+.mail-div {
+  margin-bottom: 5px;
+}
+/* Header contact info */
