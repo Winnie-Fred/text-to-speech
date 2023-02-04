@@ -7,13 +7,13 @@ import uuid
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+import fitz
 
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 
 
 from gtts.tts import gTTS, gTTSError
-from PyPDF4 import PdfFileReader
 from render_block import render_block_to_string
 
 from .forms import TypedInInputForm, FileUploadForm
@@ -154,11 +154,11 @@ def convert_file_content(request):
 
 
 def extract_text_from_pdf(file):
-    pdf_reader = PdfFileReader(io.BytesIO(file))
-    content = []
-    # creating a page object
-    for i in range(int(pdf_reader.numPages)):
-        content.append(pdf_reader.getPage(i).extractText())
+    with fitz.open(stream=file) as doc:
+        content = []
+        for page in doc:
+            content.append(page.get_text())
+
     return ''.join(content)
 
 def extract_text_from_txt(file):
