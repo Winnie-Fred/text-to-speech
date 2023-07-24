@@ -200,7 +200,7 @@ async function uploadToServer(elementName, objectToUpload, csrftoken, url, lang,
         })
         .then(data => {
             // Perform actions with the response data from the view
-            if (data.context.errors) {
+            if (!data.context.errors) {
                 // Move this code to when conversion is complete
                 document.querySelector('.entire-content-wrapper').innerHTML = data.html;
                 addBackButton();
