@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Third-party
+    'celery',
+    'celery_progress',
 
     # Custom
     'text_to_mp3',

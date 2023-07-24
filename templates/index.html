@@ -1,42 +1,43 @@
 {% extends 'base.html' %} {% load static %} {% block content %}
 
-<div class="detail">Simply copy and paste text in the box below:</div>
+<div id="error-notification"></div>
+<div class="detail">Simply copy and paste text in the box below</div>
 <div class="_segment">
-  <div class="_segment_form_1">
-    <span class="cannot-leave-blank-message">
-      <span class="cannot-leave-blank-message-main-wrap">
-        <span class="material-icons-outlined">error</span>
-        <p>Please fill in this field first</p>
-      </span>
-
-      <span class="material-icons-outlined cancel-alert-button-text"
-        >cancel</span
-      >
-    </span>
-    <form>
-      {% csrf_token %}
-      <div class="last">
-        <div class="container">
-          <div class="header">
-            <img src="{% static 'images/cancel.png' %}" alt="" class="clear" />
+  <div class="_segment_form_1">    
+    <div class="text_input_form">
+      <form>
+        {% csrf_token %}
+        <div class="last">
+          <div class="container">
+            <div class="header">
+              <img src="{% static 'images/cancel.png' %}" alt="" class="clear" />
+            </div>          
+            {{ text_input_form.text_to_convert }}
           </div>
-          {{ text_input_form.text_to_convert }}
         </div>
-      </div>
+        
+        <span class="field-error small-error-span error-span">
+          <span class="error-span-main-wrap">
+            <span class="material-icons-outlined">error</span>
+            <p>Please fill in this field first</p>
+          </span>
+          <span class="material-icons-outlined cancel-alert-button-text">cancel</span>
+        </span>
 
-      <div class="speak">
-        <div>
-          <button
-            class="convert-entered-text-btn"
-            name="convert_entered_text"
-            type="button"
-            id="speak"
-          >
-            Convert
-          </button>
+        <div class="speak">
+          <div>
+            <button
+              class="convert-entered-text-btn"
+              name="convert_entered_text"
+              type="button"
+              id="speak"
+            >
+              Convert
+            </button>
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
   <div class="alternative-text-wrapper">
     <hr />
@@ -76,13 +77,6 @@
           <span class="material-icons remove-file-icon">delete</span>
           <div class="progress-bar"></div>
         </div>
-        {% comment %}
-        <div class="speak">
-          <div>
-            <a class="open-modal upload-a" id="speak" href="#modal">Speak</a>
-          </div>
-        </div>
-        {% endcomment %}
 
         <button type="button" class="upload-button">Upload</button>
       </div>
@@ -91,7 +85,33 @@
 
   <!--Drag and drop files-->
 </div>
-
-<script src="{% static 'index.js' %}"></script>
+<div class="config">
+  <fieldset class="settings-fieldset">
+    <legend class="settings-legend">Settings</legend>
+    <div id="selectWrapper" class="settings _segment">
+      <div class="settings-lang _segment_form_1">
+        <div class="choose_lang_form">
+          <label style="color: #000000; font-size: 12px;" for="selectLangList">Choose the language the text is in</label>        
+          <select id="selectLangList" name="{{ choose_lang_form.select_lang.name }}">                    
+            {% for value, label in choose_lang_form.select_lang.field.choices %}
+            <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>  
+        </div>
+      </div>
+      <div class="alternative-text-wrapper"></div>
+      <div class="settings-accent _segment_form_2">
+        <div class="voice_accent_form">
+          <label style="color: #000000; font-size: 12px;" for="selectVoiceAccentList">Choose an accent to read the text with</label>        
+          <select id="selectVoiceAccentList">          
+            {% for value, label in voice_accent_form.select_voice_accent.field.choices %}
+              <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>  
+        </div>
+      </div>
+    </div>
+  </fieldset>
+</div>
 
 {% endblock content %}

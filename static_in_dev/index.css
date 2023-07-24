@@ -152,7 +152,7 @@ body > div:nth-child(2) > * {
 
 .detail {
   width: 100%;
-  margin-top: 0px;
+  margin: 20px 0px;
   font-weight: 400;
   font-size: 18px;
   line-height: 21px;
@@ -261,6 +261,7 @@ textarea {
   justify-content: center;
   align-items: center;
   padding: 0px 72px 0px 42px;
+  background-color: #ffffff;
 }
 
 .alternative-text-wrapper hr {
@@ -434,6 +435,10 @@ body {
   width: 100%;
 }
 
+.text {
+  background-color: #ffffff;
+}
+
 ._segment {
   display: flex;
   height: 100%;
@@ -443,6 +448,10 @@ body {
 ._segment_form_2 {
   width: 50%;
   height: 100%;
+}
+
+._segment_form_1 {
+  background-color: #ffffff;
 }
 
 ._segment_form_2 {
@@ -514,10 +523,9 @@ body {
   opacity: 0;
 }
 .cannot-upload-message,
-.cannot-leave-blank-message {
+.error-span {
   background-color: #ffc6c4;
   font-size: 17px;
-  display: flex;
   align-items: center;
   margin: 5px 0;
   padding: 5px 10px 5px 30px;
@@ -530,23 +538,42 @@ body {
   margin-bottom: 30px;
 }
 
-.cannot-leave-blank-message{
+.error-span{
   padding: 10px;
   justify-content: space-between;
   margin-top: 30px;
 }
-.cannot-leave-blank-message p{
+
+.small-error-span p {
+  font-size: 12px;
+  color: #bb0000 !important;
+}
+
+.small-error-span {
+  margin-top: 0px !important;
+  padding-left: 0px;
+  justify-content: flex-start;
+  border: none;
+  background: none;
+
+}
+
+.error-span p{
   color: #000;
 }
 
-.cannot-leave-blank-message span:last-child{
+.error-span span:last-child{
   margin: 0;
   padding: 0;
 }
 
-.cannot-leave-blank-message-main-wrap{
+.error-span-main-wrap{
   display: flex;
   align-items: center;
+}
+
+.error-border {
+  border: 1px solid red !important; /* Red border with 1 pixel width */
 }
 
 
@@ -598,17 +625,17 @@ body {
   }
 }
 .cannot-upload-message span,
-.cannot-leave-blank-message span,
+.error-span span,
 .upload-button-icon {
   padding-right: 10px;
 }
 .cannot-upload-message span:last-child,
-.cannot-leave-blank-message span:last-child {
+.error-span span:last-child {
   padding-left: 20px;
   cursor: pointer;
 }
 
-.cannot-leave-blank-message {
+.error-span {
   width: 100%;
   margin-top: 30px;
 }
@@ -1330,112 +1357,6 @@ audio {
   }
 }
 
-/* Preloader */
-
-.div-wrapper-for-loaded-content {
-  /* font-size: calc(16px + (24 - 16) * (100vw - 320px) / (1280 - 320)) !important; */
-  /* background-color: hsl(223,90%,95%); */
-  color: hsl(223, 90%, 5%);
-  font: 1em/1.5 sans-serif;
-  height: 100%;
-  place-items: center;
-  transition: background-color 0.3s;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-}
-
-#loadedContent{
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-}
-
-
-.loader main {
-  padding: 1.5em 0;
-}
-
-.preloader_wrapper{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.ip {
-  width: 16em;
-  height: 8em;
-}
-.ip__track {
-  stroke: hsl(223, 90%, 90%);
-  transition: stroke 0.3s;
-}
-.ip__worm1,
-.ip__worm2 {
-  animation: worm1 2s linear infinite;
-}
-.ip__worm2 {
-  animation-name: worm2;
-}
-
-/* Dark theme */
-@media (prefers-color-scheme: dark) {
-  /* :root {
-      --bg: hsl(223,90%,5%);
-      --fg: hsl(223,90%,95%);
-    } */
-  .ip__track {
-    stroke: hsl(223, 90%, 15%);
-  }
-}
-
-/* Animation */
-@keyframes worm1 {
-  from {
-    stroke-dashoffset: 0;
-  }
-  50% {
-    animation-timing-function: steps(1);
-    stroke-dashoffset: -358;
-  }
-  50.01% {
-    animation-timing-function: linear;
-    stroke-dashoffset: 358;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-@keyframes worm2 {
-  from {
-    stroke-dashoffset: 358;
-  }
-  50% {
-    stroke-dashoffset: 0;
-  }
-  to {
-    stroke-dashoffset: -358;
-  }
-}
-
-.loading-text {
-  width: 100%;
-  padding: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 60px;
-}
-
-.extra-loading-text {
-  width: 100%;
-  padding: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 70px;
-}
-
 /* Successful Conversion Page  */
 
 /* Error animation plus error message */
@@ -1553,3 +1474,169 @@ audio {
   margin-bottom: 5px;
 }
 /* Header contact info */
+
+
+
+/* Search select element */
+/* START SELECT3.css */
+.searchSelect3 {
+  position: relative;
+  color: #000;
+  margin-bottom: 10px;
+  /*font-size: 16px;*/
+}
+
+.searchSelect3_Input {
+  width: 250px;
+  height: 32px;
+  background: #fcfcfc;
+  border: 1px solid #aaa;
+  border-radius: 5px;
+  text-indent: 10px;
+  padding-right: 20px;
+  width: 200px;
+  
+  /*font: 200 16px/1.5 Helvetica, Verdana, sans-serif;*/
+}
+
+.searchSelect3_Caret_Down {
+  position: absolute;
+  top: 5px;
+  left: 180px;
+  cursor: pointer;
+}
+
+.searchSelect3_Times {
+  position: absolute;
+  top: 5px;
+  left: 210px;
+  cursor: pointer;
+  display: none;
+  color: #000000;
+}
+
+.searchSelect3_List {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  overflow-x: hidden;
+  height: 20em;
+  width: 250px;
+  position: absolute;
+}
+
+.searchSelect3_List li {
+  list-style-type: none;
+  background: #ffffff;
+  /*font: 200 16px/1.5 Helvetica, Verdana, sans-serif;*/
+  border-bottom: 1px solid #ccc;
+}
+
+.searchSelect3_List li:hover {
+  cursor: pointer;
+  background: #fe8700;
+  color: #ffffff;
+}
+
+
+.searchSelect3_List li label {
+  padding: 0.5em;
+  cursor: pointer;
+  color: #000000;
+}
+
+.searchSelect3_List li:hover label {
+  color: #ffffff;
+}
+
+.searchSelect3_Input::-ms-clear {
+display: none;
+width: 0;
+height: 0;
+}
+
+.searchSelect3_Input::-ms-reveal {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.searchSelect3_Input::-webkit-search-decoration,
+.searchSelect3_Input::-webkit-search-cancel-button,
+.searchSelect3_Input::-webkit-search-results-button,
+.searchSelect3_Input::-webkit-search-results-decoration {
+  display: none;
+}
+/* END SELECT3.css */
+
+#selectWrapper {
+margin: 20px 0px;
+}
+
+/* Search select element */
+
+/* Settings/Config section */
+
+.config {
+  background-color: #ffffff;
+  margin-bottom: 20px;
+}
+
+.settings {
+  height: 20%;
+}
+
+.settings-lang, .settings-accent {
+  height: 20%
+}
+
+.settings-accent {
+  background: none;
+}
+
+.settings-fieldset {
+  border: 1px solid grey;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.settings-legend {
+  margin-left: 2%;
+  font-weight: 700;
+  padding: 5px 10px;
+}
+/* Settings section */
+
+/* Conversion Progress bar */
+
+/* CSS for the progress bar and description */
+.progress-container {
+  width: 100%;
+  max-width: 400px; /* Set a maximum width to prevent overflowing */
+  margin: 0 auto; /* Center the container horizontally */
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.conversion-progress-bar {
+  background-color: #4CAF50;
+  height: 30px;
+  transition: width 0.3s ease-in-out; /* Add a smooth transition effect for width changes */
+}
+
+.progress-description {
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  padding: 10px;
+}
+
+.extra-progress-description {
+  font-size: 18px;
+  text-align: center;
+  margin-top: 20px;
+} 
+
+/* Conversion Progress bar */

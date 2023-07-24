@@ -1,8 +1,8 @@
 import os
 import socket
 import io
+import uuid
 import docx2txt
-import uuid 
 
 import cloudinary
 import cloudinary.uploader
@@ -11,12 +11,15 @@ import fitz
 
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
+from django.urls import reverse
 
 
 from gtts.tts import gTTS, gTTSError
 from render_block import render_block_to_string
+from celery.result import AsyncResult
 
-from .forms import TypedInInputForm, FileUploadForm
+from .forms import TypedInInputForm, FileUploadForm, VoiceAccentForm, ChooseLanguageForm
+from .tasks import convert_text_to_speech
 
 
 cloudinary.config(cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
@@ -30,59 +33,50 @@ def home(request):
     context = {"speech":None, "errors":[]}
     text_input_form = TypedInInputForm(request.session.get("form"))
     file_input_form = FileUploadForm()
+    voice_accent_form = VoiceAccentForm()
+    choose_lang_form = ChooseLanguageForm()
     if not text_input_form:
         text_input_form = TypedInInputForm()
     context['text_input_form'] = text_input_form
     context['file_input_form'] = file_input_form
+    context['voice_accent_form'] = voice_accent_form
+    context['choose_lang_form'] = choose_lang_form
     return render(request, 'index.html', context)
 
 
 def convert_input_text(request):
-    context = {"speech":None, "errors":[], "preloader":False}
-    lang = 'en'
+    context = {"speech":None, "errors":[]}
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        form = TypedInInputForm(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            request.session['form'] = data
-            text_to_be_converted = data.get('text_to_convert')
+        text_input_form = TypedInInputForm(request.POST)
+        voice_accent_form = VoiceAccentForm(request.POST)
+        choose_lang_form = ChooseLanguageForm(request.POST)
+        print(request.POST)
+        
+        if text_input_form.is_valid() and voice_accent_form.is_valid() and choose_lang_form.is_valid():
+            text_input_form_data = text_input_form.cleaned_data
+            voice_accent_form_data = voice_accent_form.cleaned_data
+            choose_lang_form_data = choose_lang_form.cleaned_data
+
+            request.session['form'] = text_input_form_data
+            text_to_be_converted = text_input_form_data.get('text_to_convert')
+            lang = choose_lang_form_data.get('select_lang')
+            tld = voice_accent_form_data.get('select_voice_accent')
             file_name = "speech-" + generate_random_id()
-            try:
-                speech_audio_file = gTTS(text=text_to_be_converted, lang=lang, slow=False, tld="com.ng") 
-                bytes_file = io.BytesIO()
-                speech_audio_file.write_to_fp(bytes_file)
+            task = convert_text_to_speech.delay(text_to_be_converted, lang, tld, file_name, context)
+            print("Task id: ", task.id)
+            context['get_progress_url'] = reverse('text_to_mp3:task_status', args=[task.id])
+            html = render_block_to_string('conversion_in_progress.html', 'content', context, request=None)
+            return JsonResponse({"html":html, "context":context}, safe=False)
 
-                # Upload the mp3 and get its URL
-                # ==============================
+        context["form_errors"] = {}
 
-                # Upload the mp3.
-                # Set the asset's public ID and allow overwriting  asset with new versions
-                cloudinary.uploader.upload(file=bytes_file.getvalue(), public_id=file_name, unique_filename = False, overwrite=True, resource_type='video')
+        context["form_errors"]["text_input_form_errors"] = [value for _, value in text_input_form.errors.items()]
+        context["form_errors"]["voice_accent_form_errors"] = [value for _, value in voice_accent_form.errors.items()]
+        context["form_errors"]["choose_lang_form_errors"] = [value for _, value in choose_lang_form.errors.items()]
 
-                # Build the URL for the image and save it in the variable 'src_url'
-                # src_url = cloudinary.CloudinaryVideo("my_file").build_url()
-                                    
-                mp3_info=cloudinary.api.resource(file_name, resource_type='video')
-                src_url = mp3_info['secure_url']
-
-                # Log the mp3 URL to the console. 
-                # Copy this URL in a browser tab to generate the image on the fly.
-            except (gTTSError, socket.error, Exception) as e:
-                context["errors"] = [f"An error occured during the conversion: {e}"]
-            else:                                   
-                context["speech_mp3"] = src_url
-                context["file_name"] = file_name + '.mp3'
-                if len(file_name) > 15:
-                    context['file_name'] = file_name[:15] + '...' + '.mp3'
-
-                html = render_block_to_string('conversion_successful.html', 'content', context, request=request)
-                return JsonResponse({"html":html, "context":context}, safe=False)
-        else:
-            errors = []
-            for _, value in form.errors.items():
-                errors.append(value)
-            context["errors"] = errors
-        return JsonResponse({"context":context})
+        context["errors"] = True
+        
+        return JsonResponse({"context":context}, safe=False)
     return redirect('text_to_mp3:home')
 
 def generate_random_id():
@@ -90,7 +84,7 @@ def generate_random_id():
 
 
 def convert_file_content(request):
-    context = {"speech":None, "errors":[], "preloader":False}
+    context = {"speech":None, "errors":[]}
     lang='en'
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest' and 'file_to_convert' in request.FILES:
         form = FileUploadForm(request.POST, request.FILES or None)
@@ -151,6 +145,37 @@ def convert_file_content(request):
             context["errors"] = errors
         return JsonResponse({"context":context})
     return redirect('text_to_mp3:home')
+
+def get_conversion_progress(request, task_id):
+    response_data = {
+        'task_completed': False,
+        'progress': 0,    
+        'success': False,
+        'errors': []
+    }
+
+    if task_id:
+        task = AsyncResult(task_id)
+        response_data['task_completed'] = task.ready()
+        response_data['progress'] = task.info.get('percent', 0)
+        print('progress: ', response_data['progress'])
+        
+        if response_data['task_completed']:
+            if task.state == 'SUCCESS':
+                if not task.result.get('context')['errors']:
+                    response_data['success'] = True
+                    response_data['html'] = task.result.get('html')
+                    response_data['context'] = task.result.get('context')
+                else:
+                    response_data['context'] = {}
+                    response_data['context']['errors'] = task.result.get('context')['errors']
+            else:
+                # Handle other task states (e.g., 'FAILURE', 'REVOKED', etc.)
+                response_data['errors'].extend(['Something went wrong!', 'Task failed or revoked'])
+    else:
+        response_data['errors'].append('Invalid task ID')
+
+    return JsonResponse(response_data)
 
 
 def extract_text_from_pdf(file):

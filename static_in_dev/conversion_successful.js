@@ -1,6 +1,5 @@
 // Media player
 
-
 const speak_div = document.querySelector(".speak div");
 const backButton = document.getElementById("back-button");
 const playerArea = document.getElementById("mediaPlayer");

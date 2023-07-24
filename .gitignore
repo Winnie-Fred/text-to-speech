@@ -136,3 +136,5 @@ speech_files/
 speech_folder/
 testing.py
 text-to-speech-info.txt
+tlds_with_countries.txt
+tlds.txt
