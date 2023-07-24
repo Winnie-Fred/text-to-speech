@@ -78,6 +78,12 @@ document.body.addEventListener('change', function(event) {
     };
 });
 
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('cancel-alert-button-remove')) {
+        handleRemoveButtonClick(event);
+    }
+});
+
 
 function getCookie(name) {
     let cookieValue = null;
@@ -132,8 +138,24 @@ function appendErrorSpan(fieldName, formErrors) {
 function handleRemoveButtonClick(event) {
     const removeButton = event.target;
     const errorSpan = removeButton.parentNode;
+
+    let adjacentElement = errorSpan.previousElementSibling;
+
+    // Traverse until an element with an input field is found
+    while (adjacentElement && !adjacentElement.querySelector('input')) {
+        adjacentElement = adjacentElement.previousElementSibling;
+    }
+
+    if (adjacentElement) {
+        const errorBorderElement = adjacentElement.querySelector('.error-border');
+        if (errorBorderElement) {
+            errorBorderElement.classList.remove('error-border');
+        }
+    }
+
     errorSpan.parentNode.removeChild(errorSpan);
 }
+
 
 function removeAllErrorIndicators() {
     // Remove the error notification if it exists
@@ -172,6 +194,7 @@ function showErrorNotification(errorMessage) {
     <p>${errorMessage}</p>
     </span>
     <span class="material-icons-outlined cancel-alert-button-remove">cancel</span>`;
+
     errorSpan.innerHTML = errorContent;
     newErrorNotificationDiv.appendChild(errorSpan);
     errorNotification.appendChild(newErrorNotificationDiv);
@@ -214,13 +237,7 @@ async function uploadToServer(elementName, objectToUpload, csrftoken, url, lang,
 
                 formFields.forEach((fieldName) => {
                     appendErrorSpan(fieldName, formErrors);
-                });
-
-                document.addEventListener('click', function(event) {
-                    if (event.target.classList.contains('cancel-alert-button-remove')) {
-                        handleRemoveButtonClick(event);
-                    }
-                });
+                });                
             }
         })
         .catch((response) => {
@@ -382,6 +399,12 @@ cancelAlertButtonForFileInput.addEventListener("click", () => {
 
 cancelAlertButtonForTextInput.addEventListener("click", () => {
     cannotLeaveFieldBlank.style.cssText = "display: none;";
+    const adjacentElement = cannotLeaveFieldBlank.previousElementSibling;
+    const errorBorderElement = adjacentElement.querySelector('.error-border');
+
+    if (errorBorderElement) {
+        errorBorderElement.classList.remove('error-border');
+    }
 });
 
 if (isAdvancedUpload) {
