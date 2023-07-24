@@ -50,7 +50,6 @@ def convert_input_text(request):
         text_input_form = TypedInInputForm(request.POST)
         voice_accent_form = VoiceAccentForm(request.POST)
         choose_lang_form = ChooseLanguageForm(request.POST)
-        print(request.POST)
         
         if text_input_form.is_valid() and voice_accent_form.is_valid() and choose_lang_form.is_valid():
             text_input_form_data = text_input_form.cleaned_data
@@ -63,7 +62,6 @@ def convert_input_text(request):
             tld = voice_accent_form_data.get('select_voice_accent')
             file_name = "speech-" + generate_random_id()
             task = convert_text_to_speech.delay(text_to_be_converted, lang, tld, file_name, context)
-            print("Task id: ", task.id)
             context['get_progress_url'] = reverse('text_to_mp3:task_status', args=[task.id])
             html = render_block_to_string('conversion_in_progress.html', 'content', context, request=None)
             return JsonResponse({"html":html, "context":context}, safe=False)

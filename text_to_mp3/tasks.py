@@ -27,13 +27,13 @@ def convert_text_to_speech(self, text, lang, tld, file_name, context):
 
         # Upload the mp3.
         # Set the asset's public ID and allow overwriting asset with new versions
-        # cloudinary.uploader.upload(
-        #     file=bytes_file.getvalue(), public_id=file_name, unique_filename=False, overwrite=True,
-        #     resource_type='video'
-        # )
-        # mp3_info = cloudinary.api.resource(file_name, resource_type='video')
-        # src_url = mp3_info['secure_url']
-        # context["speech_mp3"] = src_url
+        cloudinary.uploader.upload(
+            file=bytes_file.getvalue(), public_id=file_name, unique_filename=False, overwrite=True,
+            resource_type='video'
+        )
+        mp3_info = cloudinary.api.resource(file_name, resource_type='video')
+        src_url = mp3_info['secure_url']
+        context["speech_mp3"] = src_url
 
         context["speech_mp3"] = 'hello'
         context["file_name"] = file_name[:15] + '...' + '.mp3' if len(file_name) > 15 else file_name + '.mp3'
