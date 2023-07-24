@@ -45,7 +45,7 @@ def home(request):
 
 
 def convert_input_text(request):
-    context = {"speech":None, "errors":[]}
+    context = {"speech":None, "errors":False}
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         text_input_form = TypedInInputForm(request.POST)
         voice_accent_form = VoiceAccentForm(request.POST)
