@@ -435,6 +435,10 @@ body {
   width: 100%;
 }
 
+.main-container, .error-container {
+  margin-top: 86px;
+}
+
 .text {
   background-color: #ffffff;
 }
