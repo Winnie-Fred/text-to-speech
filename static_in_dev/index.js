@@ -756,13 +756,13 @@ Required: FOUNDATION
 $(document).ready(function(e) {
     $('#selectVoiceAccentList').select3({
         width: 300,
-        placeholder: 'Search accents',
+        placeholder: 'Type to search accents',
         zIndex: 100,
         widthList: 300
     });
     $('#selectLangList').select3({
         width: 300,
-        placeholder: 'Search languages',
+        placeholder: 'Type to search languages',
         zIndex: 100,
         widthList: 300
     });
