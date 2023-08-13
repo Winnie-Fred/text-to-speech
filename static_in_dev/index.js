@@ -758,13 +758,13 @@ $(document).ready(function(e) {
         width: 300,
         placeholder: 'Search accents',
         zIndex: 100,
-        widthList: 400
+        widthList: 300
     });
     $('#selectLangList').select3({
         width: 300,
         placeholder: 'Search languages',
         zIndex: 100,
-        widthList: 400
+        widthList: 300
     });
 });
 
