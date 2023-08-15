@@ -1,17 +1,13 @@
-{% extends 'base.html' %}
-
 {% load static %}
 
-{% block content %}    
-    <body class="loaded-content-wrapper" style="margin:0;">
-        <div class="div-wrapper-for-loaded-content">           
-            <div class="main-container">
-                <div class="progress-container">
-                    <div class="conversion-progress-bar" style="width: 0%"></div>
-                    <div class="progress-description">Converting</div>
-                </div>
-                <div class="extra-progress-description">Please wait for the process to complete</div>
-            </div>            
+{% block dynamic_content %}    
+    <div class="div-wrapper-for-loaded-content">           
+        <div class="main-container">
+            <div class="progress-container">
+                <div class="conversion-progress-bar" style="width: 0%"></div>
+                <div class="progress-description">Converting</div>
+            </div>
+            <div class="extra-progress-description">Please wait for the process to complete</div>
         </div>            
-    </body>
-{% endblock content %}
+    </div>            
+{% endblock dynamic_content %}

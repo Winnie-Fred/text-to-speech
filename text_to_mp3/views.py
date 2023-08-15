@@ -12,10 +12,10 @@ import fitz
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.urls import reverse
+from django.template.loader import render_to_string
 
 
 from gtts.tts import gTTS, gTTSError
-from render_block import render_block_to_string
 from celery.result import AsyncResult
 
 from .forms import TypedInInputForm, FileUploadForm, VoiceAccentForm, ChooseLanguageForm
@@ -63,7 +63,7 @@ def convert_input_text(request):
             file_name = "speech-" + generate_random_id()
             task = convert_text_to_speech.delay(text_to_be_converted, lang, tld, file_name, context)
             context['get_progress_url'] = reverse('text_to_mp3:task_status', args=[task.id])
-            html = render_block_to_string('conversion_in_progress.html', 'content', context, request=None)
+            html = render_to_string('conversion_in_progress.html')
             return JsonResponse({"html":html, "context":context}, safe=False)
 
         context["form_errors"] = {}
@@ -134,7 +134,7 @@ def convert_file_content(request):
                     if len(file_name) > 15:
                         context['file_name'] = file_name[:15] + '...' + '.mp3'
 
-                    html = render_block_to_string('conversion_successful.html', 'content', context, request=request)
+                    html = render_to_string('conversion_successful.html', context)
                     return JsonResponse({"html":html, "context":context}, safe=False)
         else:   
             errors = []
@@ -152,27 +152,32 @@ def get_conversion_progress(request, task_id):
         'errors': []
     }
 
-    if task_id:
-        task = AsyncResult(task_id)
-        response_data['task_completed'] = task.ready()
-        response_data['progress'] = task.info.get('percent', 0)
-        print('progress: ', response_data['progress'])
-        
-        if response_data['task_completed']:
-            if task.state == 'SUCCESS':
-                if not task.result.get('context')['errors']:
-                    response_data['success'] = True
-                    response_data['html'] = task.result.get('html')
-                    response_data['context'] = task.result.get('context')
-                else:
-                    response_data['context'] = {}
-                    response_data['context']['errors'] = task.result.get('context')['errors']
-            else:
-                # Handle other task states (e.g., 'FAILURE', 'REVOKED', etc.)
-                response_data['errors'].extend(['Something went wrong!', 'Task failed or revoked'])
-    else:
+    if not task_id:
         response_data['errors'].append('Invalid task ID')
+        return JsonResponse(response_data)
+    
+    task = AsyncResult(task_id)
 
+    if task.info is None:
+        response_data['errors'].append('Something went wrong: Failed to start conversion')
+        return JsonResponse(response_data)
+
+    response_data['task_completed'] = task.ready()
+    response_data['progress'] = task.info.get('percent', 0)
+    print('progress: ', response_data['progress'])
+    
+    if response_data['task_completed']:
+        if task.state == 'SUCCESS':
+            if not task.result.get('context')['errors']:
+                response_data['success'] = True
+                response_data['html'] = task.result.get('html')
+                response_data['context'] = task.result.get('context')
+            else:
+                response_data['context'] = {}
+                response_data['context']['errors'] = task.result.get('context')['errors']
+        else:
+            # Handle other task states (e.g., 'FAILURE', 'REVOKED', etc.)
+            response_data['errors'].extend(['Something went wrong!', 'Task failed or revoked'])
     return JsonResponse(response_data)
 
 

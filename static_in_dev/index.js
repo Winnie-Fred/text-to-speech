@@ -200,6 +200,21 @@ function showErrorNotification(errorMessage) {
     errorNotification.appendChild(newErrorNotificationDiv);
 }
 
+function toggleContent() {
+    var mainContent = document.querySelector('.main-content-wrapper');
+    var dynamicContent = document.querySelector('.dynamic-content-wrapper');
+    
+    if (mainContent.style.display === 'none') {
+        dynamicContent.innerHTML = '';
+        dynamicContent.style.display = 'none';
+        mainContent.style.display = 'flex';
+    } else {
+        mainContent.style.display = 'none';
+        dynamicContent.style.display = 'flex';
+    }
+    toggleBackButton();
+}
+
 async function uploadToServer(elementName, objectToUpload, csrftoken, url, lang, accent) {
     let formData = new FormData();
     formData.append(elementName, objectToUpload);
@@ -224,9 +239,8 @@ async function uploadToServer(elementName, objectToUpload, csrftoken, url, lang,
         .then(data => {
             // Perform actions with the response data from the view
             if (!data.context.errors) {
-                // Move this code to when conversion is complete
-                document.querySelector('.entire-content-wrapper').innerHTML = data.html;
-                addBackButton();
+                document.querySelector('.dynamic-content-wrapper').innerHTML = data.html;
+                toggleContent();
                 checkTaskProgress(data.context.get_progress_url)
             } else {
                 showErrorNotification(CORRECT_FORM_ERROR_MESSAGE);
@@ -247,7 +261,8 @@ async function uploadToServer(elementName, objectToUpload, csrftoken, url, lang,
             const error_msg = ["An error occured while trying to communicate with the server.",
                 "Sorry about that. Please try again."
             ];
-
+            
+            toggleContent();
             displayError(error_msg);
 
         });;
@@ -268,10 +283,8 @@ function checkTaskProgress(url) {
                 if (data.task_completed) {
                     clearInterval(interval);
                     if (data.success) {
-                        document.querySelector(".entire-content-wrapper").innerHTML = data.html
-                        var new_script = document.createElement('script');
-                        new_script.setAttribute('src', '/static/conversion_successful.js');
-                        document.head.appendChild(new_script);
+                        document.querySelector(".dynamic-content-wrapper").innerHTML = data.html;  
+                        initializeAudioPlayer();
                     } else {
                         displayError(data.context.errors);
                     }
@@ -280,8 +293,8 @@ function checkTaskProgress(url) {
                         const percentage = Math.floor(data.progress);
                         document.querySelector(".conversion-progress-bar").style.cssText = `width: ${percentage}%;`;
                     } else {
+                        displayError(data.errors);
                         clearInterval(interval);
-                        displayError(data.errors)
                     }
                 }
             })
@@ -301,7 +314,7 @@ function checkTaskProgress(url) {
 
 
 function startErrorAnimation() {
-    document.querySelector(".entire-content-wrapper").innerHTML = `<!-- Simple error animation, credits to https://codepen.io/bmartin97/pen/yLYOKVM 
+    document.querySelector(".dynamic-content-wrapper").innerHTML = `<!-- Simple error animation, credits to https://codepen.io/bmartin97/pen/yLYOKVM 
     -->
     <div class="div-wrapper-for-loaded-content">
       <div class="error-container">
@@ -314,22 +327,25 @@ function startErrorAnimation() {
     `
 }
 
-function addBackButton() {
+function toggleBackButton() {
     const backButton = document.querySelector('.return-div');
     if (backButton) {
-        return;
+        backButton.remove();
+    } else {
+        var header = document.querySelector("header")
+        var spanElem = document.createElement("span");
+        spanElem.className = "return-div";
+        spanElem.innerHTML = `<a id="return-button" title="Back" class="close"><svg id="return-arrow" class="fa-solid fa-arrow-left-long" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M109.3 288L480 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-370.7 0 73.4-73.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-128 128c-12.5 12.5-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 288z"/></svg><p>Return</p></a>`;
+        header.parentNode.insertBefore(spanElem, header.nextSibling);
+        spanElem.addEventListener("click", () => {
+            toggleContent();
+        });
     }
-    var header = document.querySelector("header")
-    var spanELem = document.createElement("span");
-    spanELem.className = "return-div";
-    spanELem.innerHTML = `<a id="return-button" href="/" title="Back" class="close"><svg id="return-arrow" class="fa-solid fa-arrow-left-long" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M109.3 288L480 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-370.7 0 73.4-73.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-128 128c-12.5 12.5-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 288z"/></svg><p>Return</p></a>`;
-    header.parentNode.insertBefore(spanELem, header.nextSibling);
 }
 
 function displayError(errorList) {
 
     startErrorAnimation();
-    addBackButton();
     const errorContainer = document.querySelector(".error-container");
     const errorDiv = document.createElement("div");
     var pElems = ``
@@ -514,6 +530,103 @@ function scaleDown() {
     setTimeout(function() {
         _this.style.transform = "scale(100%)"
     }, 100)
+}
+
+
+function initializeAudioPlayer() {
+    // Media player
+
+    const speak_div = document.querySelector(".play div");
+    const backButton = document.getElementById("back-button");
+    const playerArea = document.getElementById("mediaPlayer");
+    const playButton = document.getElementById("playState");
+    const stopButton = document.getElementById("stopItem");
+    const durationLabel = document.getElementById("currentDuration");
+    const audioTitleLabel = document.getElementById("audioTitleLabel");
+    const audioPlayer = document.getElementById("audioPlayer");
+    audioPlayer.volume = 0.05;
+    const volumeSlider = document.getElementById("volumeSlider");
+    let currentIndex = 0;
+    let dataAvailable = false;
+    let currentLength;
+    let timer;
+    let downloadBtn = document.getElementById("downloadBtn");
+
+    timer = setInterval(updateDurationLabel, 100);
+
+    volumeSlider.addEventListener("input", () => {
+        audioPlayer.volume = parseFloat(volumeSlider.value);
+    }, false);
+
+
+    const playMusic = () => {
+        playerArea.classList.toggle("play");       
+        
+        if (audioPlayer.paused) {
+            setTimeout(()=> {audioPlayer.play()}, 300)
+            timer = setInterval(updateDurationLabel, 100);
+        } else {
+            audioPlayer.pause();
+            clearInterval(timer);
+        }
+    };
+
+
+    playButton.addEventListener("click", playMusic, false);
+
+    stopButton.addEventListener("click", stopAudio, false);
+
+    backButton.addEventListener("click", stopAudio, false);
+
+
+    audioPlayer.addEventListener("loadeddata", () => {
+        dataAvailable = true;
+        currentLength = audioPlayer.duration;
+    });
+
+
+    // Converts time in ms to zero-padded string in seconds
+    function parseTime(time) {
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time - minutes * 60);
+        const secondsZero = seconds < 10 ? "0" : "";
+        const minutesZero = minutes < 10 ? "0" : "";
+        return minutesZero + minutes.toString() + ":" + secondsZero + seconds.toString();
+    }
+
+    //  Stops the audio from playing
+    function stopAudio() {
+        playerArea.classList.remove("play");
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+        updateDurationLabel();
+    }
+
+    // Pauses audio
+    function pauseAudio() {
+        console.log("Paused")
+        playerArea.classList.toggle("play");
+        audioPlayer.pause();
+        clearInterval(timer);
+    }
+
+    // Updates the duration label
+    function updateDurationLabel() {
+        if (dataAvailable) {
+        durationLabel.innerText = parseTime(audioPlayer.currentTime) + " / " + parseTime(currentLength);
+        } else {
+        durationLabel.innerText = parseTime(audioPlayer.currentTime);
+        }
+    }
+
+    // stop on completion
+    audioPlayer.addEventListener("ended", () => {
+        stopAudio();
+    });
+
+
+    speak_div.addEventListener("click", playMusic, false);
+    // Media player
 }
 
 

@@ -427,7 +427,7 @@ body {
   align-items: center;
 }
 
-.entire-content-wrapper {
+.dynamic-content-wrapper, .main-content-wrapper {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -582,7 +582,7 @@ body {
 
 
 @media only screen and (max-width: 769px) {
-  .entire-content-wrapper{
+  .dynamic-content-wrapper, .main-content-wrapper {
     padding: 0px 0px;
   }
   ._segment_form_1{
