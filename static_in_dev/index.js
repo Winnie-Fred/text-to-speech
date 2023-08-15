@@ -21,7 +21,7 @@ let fileSize = document.querySelector(".file-size");
 let progressBar = document.querySelector(".progress-bar");
 let removeFileButton = document.querySelector(".remove-file-icon");
 let uploadButton = document.querySelector(".upload-button");
-let textConvertButton = document.querySelector(".convert-entered-text-btn");
+let textConvertButton = document.querySelector(".convert-entered-text-btn-div");
 let fileFlag = 0;
 
 let MAX_UPLOAD_SIZE_IN_MB = 50
