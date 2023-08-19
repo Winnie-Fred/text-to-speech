@@ -21,7 +21,7 @@ let fileSize = document.querySelector(".file-size");
 let progressBar = document.querySelector(".progress-bar");
 let removeFileButton = document.querySelector(".remove-file-icon");
 let uploadButton = document.querySelector(".upload-button");
-let textConvertButton = document.querySelector(".convert-entered-text-btn-div");
+let textConvertButton = document.querySelector(".convert-entered-text-btn");
 let fileFlag = 0;
 
 let MAX_UPLOAD_SIZE_IN_MB = 50;
@@ -352,7 +352,10 @@ function checkTaskProgress(url) {
                 } else {
                     if ((data.errors.length) === 0) {
                         const percentage = Math.floor(data.progress);
-                        document.querySelector(".conversion-progress-bar").style.cssText = `width: ${percentage}%;`;
+                        const progress = document.querySelector('.progress-done');
+                        progress.textContent = `${percentage}%`;
+                        progress.style.width = `${percentage}%`;
+                        progress.style.opacity = 1;
                     } else {
                         displayError(data.errors);
                         clearInterval(interval);
@@ -559,33 +562,10 @@ function queryAll(a) {
 
 let clear = query(".clear");
 let text = query(".text");
-let speeedDiv = query(".speed");
-let speeedDivControl = query(".speed img");
-let synth = window.speechSynthesis;
-let playing = query(".playing");
-let div_speak = query(".speak div");
-let stopSpeech = query(".stop");
-let pause = query(".pause")
-let working = queryAll(".working");
-let utter;
 
 
 clear.onclick = function() {
     text.value = "";
-    localStorage.setItem("value", "");
-}
-
-
-div_speak.onmousedown = scaleDown;
-
-
-function scaleDown() {
-    let _this = this;
-    this.style.transform = "scale(40%)"
-
-    setTimeout(function() {
-        _this.style.transform = "scale(100%)"
-    }, 100)
 }
 
 

@@ -1620,18 +1620,35 @@ margin: 20px 0px;
 
 /* CSS for the progress bar and description */
 .progress-container {
-  width: 100%;
-  max-width: 400px; /* Set a maximum width to prevent overflowing */
-  margin: 0 auto; /* Center the container horizontally */
-  background-color: #f0f0f0;
-  border-radius: 4px;
-  overflow: hidden;
+	flex-direction: column;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+	margin: 0;
 }
 
-.conversion-progress-bar {
-  background-color: #4CAF50;
-  height: 30px;
-  transition: width 0.3s ease-in-out; /* Add a smooth transition effect for width changes */
+.progress {
+	background-color: #d8d8d8;
+	border-radius: 20px;
+	position: relative;
+	margin: 15px 0;
+	height: 30px;
+	width: 300px;
+}
+
+.progress-done {
+	background: linear-gradient(to left, #F2709C, #FF9472);
+	box-shadow: 0 3px 3px -5px #F2709C, 0 2px 5px #F2709C;
+	border-radius: 20px;
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	width: 0;
+	opacity: 0;
+	transition: 1s ease 0.3s;
 }
 
 .progress-description {
