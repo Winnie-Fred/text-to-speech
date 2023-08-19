@@ -29,6 +29,9 @@ cloudinary.config(cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
 
 # Create your views here.
 
+def generate_random_id():
+    return uuid.uuid4().hex[:6].upper()
+
 def home(request):
     context = {"speech":None, "errors":[]}
     text_input_form = TypedInInputForm(request.session.get("form"))
@@ -47,26 +50,28 @@ def home(request):
 def convert_input_text(request):
     context = {"speech":None, "errors":False}
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        context["form_errors"] = {}
+        context["form_errors"]["file_upload_form_errors"] = []
+        context["form_errors"]["voice_accent_form_errors"] = []
+        context["form_errors"]["choose_lang_form_errors"] = []
+
         text_input_form = TypedInInputForm(request.POST)
         voice_accent_form = VoiceAccentForm(request.POST)
         choose_lang_form = ChooseLanguageForm(request.POST)
         
         if text_input_form.is_valid() and voice_accent_form.is_valid() and choose_lang_form.is_valid():
             text_input_form_data = text_input_form.cleaned_data
-            voice_accent_form_data = voice_accent_form.cleaned_data
-            choose_lang_form_data = choose_lang_form.cleaned_data
 
             request.session['form'] = text_input_form_data
             text_to_be_converted = text_input_form_data.get('text_to_convert')
-            lang = choose_lang_form_data.get('select_lang')
-            tld = voice_accent_form_data.get('select_voice_accent')
+            lang = choose_lang_form.cleaned_data.get('select_lang')
+            tld = voice_accent_form.cleaned_data.get('select_voice_accent')
             file_name = "speech-" + generate_random_id()
             task = convert_text_to_speech.delay(text_to_be_converted, lang, tld, file_name, context)
             context['get_progress_url'] = reverse('text_to_mp3:task_status', args=[task.id])
             html = render_to_string('conversion_in_progress.html')
             return JsonResponse({"html":html, "context":context}, safe=False)
 
-        context["form_errors"] = {}
 
         context["form_errors"]["text_input_form_errors"] = [value for _, value in text_input_form.errors.items()]
         context["form_errors"]["voice_accent_form_errors"] = [value for _, value in voice_accent_form.errors.items()]
@@ -74,75 +79,66 @@ def convert_input_text(request):
 
         context["errors"] = True
         
-        return JsonResponse({"context":context}, safe=False)
+        return JsonResponse({"context":context})
     return redirect('text_to_mp3:home')
-
-def generate_random_id():
-    return uuid.uuid4().hex[:6].upper()
 
 
 def convert_file_content(request):
-    context = {"speech":None, "errors":[]}
-    lang='en'
+    context = {"speech":None, "errors":False}
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest' and 'file_to_convert' in request.FILES:
-        form = FileUploadForm(request.POST, request.FILES or None)
-        if form.is_valid():
-            uploaded_file = request.FILES['file_to_convert']
+
+        context["form_errors"] = {}
+        context["form_errors"]["file_upload_form_errors"] = []
+        context["form_errors"]["voice_accent_form_errors"] = []
+        context["form_errors"]["choose_lang_form_errors"] = []
+
+        file_upload_form = FileUploadForm(request.POST, request.FILES)
+        voice_accent_form = VoiceAccentForm(request.POST)
+        choose_lang_form = ChooseLanguageForm(request.POST)
+
+        if file_upload_form.is_valid() and voice_accent_form.is_valid() and choose_lang_form.is_valid():
+            uploaded_file = file_upload_form.cleaned_data.get('file_to_convert')      
+
             read_uploaded_file = uploaded_file.read()
-            file_name = request.FILES['file_to_convert'].name.lower()
+            file_name = uploaded_file.name
             text = ''
             
-            if read_uploaded_file:
-                try:
-                    if file_name.endswith(".pdf"):
-                        text = extract_text_from_pdf(read_uploaded_file)
-                    elif file_name.endswith(".txt"):
-                        text = extract_text_from_txt(uploaded_file)
-                    elif file_name.endswith(".docx"):
-                        text = extract_text_from_docx(uploaded_file)
-                except Exception as e:
-                    context["errors"] = [f"An error occured with the file: {e}"]
-                    return JsonResponse({"context":context})
+            try:
+                if file_name.endswith(".pdf"):
+                    text = extract_text_from_pdf(read_uploaded_file)
+                elif file_name.endswith(".txt"):
+                    text = extract_text_from_txt(uploaded_file)
+                elif file_name.endswith(".docx"):
+                    text = extract_text_from_docx(uploaded_file)
+            except Exception as e:
+                context["form_errors"]["file_upload_form_errors"] = [f"An error occured with the file: {e}"]
+                context["errors"] = True
+                return JsonResponse({"context":context})
 
-                file_name  += generate_random_id()
+            if text.strip():
+                base_name, _ = os.path.splitext(file_name)
+                file_name = f"{base_name}-{generate_random_id()}"
+                tld = voice_accent_form.cleaned_data.get('select_voice_accent')
+                lang = choose_lang_form.cleaned_data.get('select_lang')
 
-                try:
-                    speech_audio_file = gTTS(text=text, lang=lang, slow=False, tld="com.ng") 
-                    bytes_file = io.BytesIO()
-                    speech_audio_file.write_to_fp(bytes_file)
+                task = convert_text_to_speech.delay(text, lang, tld, file_name, context)
+                context['get_progress_url'] = reverse('text_to_mp3:task_status', args=[task.id])
+                html = render_to_string('conversion_in_progress.html')
+                return JsonResponse({"html":html, "context":context}, safe=False)
 
-                    # Upload the mp3 and get its URL
-                    # ==============================
+            context["form_errors"]["file_upload_form_errors"] = ["The submitted file must contain text."]
+            context["errors"] = True
+            return JsonResponse({"context":context})
+            
+        context["form_errors"]["file_upload_form_errors"] = [value for _, value in file_upload_form.errors.items()]
+        context["form_errors"]["voice_accent_form_errors"] = [value for _, value in voice_accent_form.errors.items()]
+        context["form_errors"]["choose_lang_form_errors"] = [value for _, value in choose_lang_form.errors.items()]
 
-                    # Upload the mp3.
-                    # Set the asset's public ID and allow overwriting the asset with new versions
-                    cloudinary.uploader.upload(file=bytes_file.getvalue(), public_id=file_name, unique_filename = False, overwrite=True, resource_type='video')
-
-                    # Build the URL for the image and save it in the variable 'src_url'
-                    # src_url = cloudinary.CloudinaryVideo("my_file").build_url()
-                                        
-                    mp3_info=cloudinary.api.resource(file_name, resource_type='video')
-                    src_url = mp3_info['secure_url']
-
-                    # Log the mp3 URL to the console. 
-                    # Copy this URL in a browser tab to generate the image on the fly.
-                except (gTTSError, socket.error, Exception) as e:
-                    context["errors"] = [f"An error occured during the conversion: {e}"]
-                else:                                   
-                    context["speech_mp3"] = src_url
-                    context["file_name"] = file_name + '.mp3'
-                    if len(file_name) > 15:
-                        context['file_name'] = file_name[:15] + '...' + '.mp3'
-
-                    html = render_to_string('conversion_successful.html', context)
-                    return JsonResponse({"html":html, "context":context}, safe=False)
-        else:   
-            errors = []
-            for _, value in form.errors.items():
-                errors.append(value)
-            context["errors"] = errors
+        context["errors"] = True
+        
         return JsonResponse({"context":context})
     return redirect('text_to_mp3:home')
+
 
 def get_conversion_progress(request, task_id):
     response_data = {

@@ -16,14 +16,11 @@ class FileUploadForm(forms.Form):
     file_to_convert = forms.FileField(widget=forms.ClearableFileInput(attrs={'class':'default-file-input', 'accept':'.txt,.docx,.pdf'}), 
                                       required=True,)
   
-    def clean(self):
-        cleaned_data = super(FileUploadForm, self).clean()
-        file = cleaned_data.get('file_to_convert')
+    def clean_file_to_convert(self):
+        file = self.cleaned_data.get('file_to_convert')
 
         if file:
-            print("file size: ", file.size)
             filename = file.name.lower()
-            print("file name: ", filename)
             if not (filename.endswith('.txt') or filename.endswith('.docx') or filename.endswith('.pdf')):
                 raise forms.ValidationError("Please upload only .txt, .docx or .pdf files")
 
@@ -225,6 +222,7 @@ class VoiceAccentForm(forms.Form):
     )
 
     select_voice_accent = forms.ChoiceField(choices=ACCENT_CHOICES)
+
 
 class ChooseLanguageForm(forms.Form):
     select_lang = forms.ChoiceField(choices=gtts.lang.tts_langs().items())

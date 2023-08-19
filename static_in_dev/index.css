@@ -548,6 +548,10 @@ body {
   margin-top: 30px;
 }
 
+.file-upload-error-span {
+  margin-top: 0px !important;
+}
+
 .small-error-span p {
   font-size: 12px;
   color: #bb0000 !important;

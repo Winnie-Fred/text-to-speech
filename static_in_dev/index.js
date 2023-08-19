@@ -29,17 +29,22 @@ let ONE_MB_IN_BYTES = 1024 * 1024
 let MAX_UPLOAD_SIZE_IN_BYTES = MAX_UPLOAD_SIZE_IN_MB * ONE_MB_IN_BYTES
 let MAX_UPLOAD_SIZE_KB = (MAX_UPLOAD_SIZE_IN_MB).toFixed(1) + " MB"
 
-document.addEventListener("click", function(e) {
-    const target = e.target.closest(".default-file-input");
 
-    if (target) {
-        target.value = '';
-        fileInput = target;
+function resetFileUploadForm(fileInputField) {
+    if (fileInputField) {
+        fileInputField.value = '';
+        fileInput = fileInputField;
         uploadedFile.style.cssText = "display: none;";
         uploadIcon.innerHTML = 'file_upload';
         dragDropText.innerHTML = 'Drag & drop any file here';
+        document.querySelector(".label").innerHTML = `or <span class="browse-files"><input name="file_to_convert" accept=".txt,.docx,.pdf" type="file" class="default-file-input"/><span class="browse-files-text"> browse file </span><span>from device</span></span>`;
         uploadButton.innerHTML = `Upload`;
     }
+}
+
+document.addEventListener("click", function(e) {
+    const target = e.target.closest(".default-file-input");
+    resetFileUploadForm(target);
 });
 
 document.body.addEventListener('change', function(event) {
@@ -67,7 +72,7 @@ document.body.addEventListener('change', function(event) {
 
         uploadIcon.innerHTML = 'check_circle';
         dragDropText.innerHTML = 'File Dropped Successfully!';
-        document.querySelector(".label").innerHTML = `drag & drop or <span class="browse-files"><input type="file" class="default-file-input" accept=".txt,.docx,.pdf" name="file_to_convert" style=""/><span class="browse-files-text" style="top: 0;"> browse file</span></span>`;
+        document.querySelector(".label").innerHTML = `Drag & drop or <span class="browse-files"><input type="file" class="default-file-input" accept=".txt,.docx,.pdf" name="file_to_convert" style=""/><span class="browse-files-text">browse file</span></span>`;
         uploadButton.innerHTML = `Upload`;
         fileName.innerHTML = nameOfFile;
         fileSize.innerHTML = (fileInput.files[0].size / (1024 * 1024)).toFixed(1) + " MB";
@@ -102,7 +107,8 @@ function getCookie(name) {
 }
 
 function appendErrorSpan(fieldName, formErrors) {
-    const fieldErrors = formErrors[fieldName + '_errors'];
+    const fieldErrorName = `${fieldName}_errors`;
+    const fieldErrors = formErrors[fieldErrorName];
 
     if (fieldErrors.length !== 0) {
         const divSurroundingElement = document.querySelector(`.${fieldName}`);
@@ -120,12 +126,16 @@ function appendErrorSpan(fieldName, formErrors) {
             errorSpan.innerHTML += errorContent;
         });
 
-        errorSpan.className = 'field-error small-error-span error-span';
+        errorSpan.className = 'small-error-span error-span';
         if (fieldName === 'voice_accent_form' || fieldName === 'choose_lang_form') {
             divSurroundingElement.appendChild(errorSpan);
             const inputField = divSurroundingElement.querySelector("input");
             inputField.classList.add("error-border");
-        } else {
+        } else if (fieldName === 'file_upload_form') {
+            errorSpan.className = 'error-span file-upload-error-span';
+            var dragFileArea = document.querySelector(".drag-file-area");
+            dragFileArea.parentNode.insertBefore(errorSpan, dragFileArea.nextSibling);
+        } else if (fieldName === 'text_input_form') {
             const container = divSurroundingElement.querySelector(".container");
             container.classList.add("error-border");
             container.parentElement.insertAdjacentElement('afterend', errorSpan);
@@ -188,7 +198,7 @@ function showErrorNotification(errorMessage) {
     newErrorNotificationDiv.id = "error-notification-div";
     const errorSpan = document.createElement('span');
     errorSpan.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
-    errorSpan.className = 'field-error error-span';
+    errorSpan.className = 'error-span';
     const errorContent = `<span class="error-span-main-wrap">
     <span class="material-icons-outlined">error</span>
     <p>${errorMessage}</p>
@@ -208,6 +218,8 @@ function toggleContent() {
         dynamicContent.innerHTML = '';
         dynamicContent.style.display = 'none';
         mainContent.style.display = 'flex';
+        fileInputField = document.querySelector(".default-file-input");
+        resetFileUploadForm(fileInputField);
     } else {
         mainContent.style.display = 'none';
         dynamicContent.style.display = 'flex';
@@ -218,7 +230,7 @@ function toggleContent() {
 async function uploadToServer(elementName, objectToUpload, csrftoken, url, lang, accent) {
     let formData = new FormData();
     formData.append(elementName, objectToUpload);
-    formData.append('select_lang', lang)
+    formData.append('select_lang', lang);
     formData.append('select_voice_accent', accent);
     await fetch(url, {
             body: formData,
@@ -247,7 +259,13 @@ async function uploadToServer(elementName, objectToUpload, csrftoken, url, lang,
 
                 // Append errors to form fields
                 const formErrors = data.context.form_errors;
-                const formFields = ['text_input_form', 'voice_accent_form', 'choose_lang_form'];
+                const formFields = ['voice_accent_form', 'choose_lang_form'];
+
+                if ('file_upload_form_errors' in data.context.form_errors) {
+                    formFields.push('file_upload_form')
+                } else if ('text_input_form_errors' in data.context.form_errors) {
+                    formFields.push('text_input_form')
+                }
 
                 formFields.forEach((fieldName) => {
                     appendErrorSpan(fieldName, formErrors);
@@ -468,7 +486,7 @@ if (isAdvancedUpload) {
 
         uploadIcon.innerHTML = 'check_circle';
         dragDropText.innerHTML = 'File Dropped Successfully!';
-        document.querySelector(".label").innerHTML = `drag & drop or <span class="browse-files"><input name="file_to_convert" accept=".txt,.docx,.pdf" type="file" class="default-file-input" style=""/><span class="browse-files-text" style="top: -23px; left: -20px;"> browse file </span></span>`;
+        document.querySelector(".label").innerHTML = `Drag & drop or <span class="browse-files"><input name="file_to_convert" accept=".txt,.docx,.pdf" type="file" class="default-file-input" style=""/><span class="browse-files-text" style="top: -23px;">browse file</span></span>`;
         uploadButton.innerHTML = `Upload`;
 
         fileName.innerHTML = nameOfFile;
@@ -482,12 +500,7 @@ if (isAdvancedUpload) {
 }
 
 removeFileButton.addEventListener("click", () => {
-    uploadedFile.style.cssText = "display: none;";
-    fileInput.value = '';
-    uploadIcon.innerHTML = 'file_upload';
-    dragDropText.innerHTML = 'Drag & drop any file here';
-    document.querySelector(".label").innerHTML = `or <span class="browse-files"><input name="file_to_convert" accept=".txt,.docx,.pdf" type="file" class="default-file-input"/><span class="browse-files-text"> browse file </span><span>from device</span></span>`;
-    uploadButton.innerHTML = `Upload`;
+    resetFileUploadForm(document.querySelector(".default-file-input"));
 });
 
 /* Drag and drop files */
@@ -542,15 +555,12 @@ function initializeAudioPlayer() {
     const playButton = document.getElementById("playState");
     const stopButton = document.getElementById("stopItem");
     const durationLabel = document.getElementById("currentDuration");
-    const audioTitleLabel = document.getElementById("audioTitleLabel");
     const audioPlayer = document.getElementById("audioPlayer");
-    audioPlayer.volume = 0.05;
+    audioPlayer.volume = 0.5;
     const volumeSlider = document.getElementById("volumeSlider");
-    let currentIndex = 0;
     let dataAvailable = false;
     let currentLength;
     let timer;
-    let downloadBtn = document.getElementById("downloadBtn");
 
     timer = setInterval(updateDurationLabel, 100);
 
@@ -600,14 +610,6 @@ function initializeAudioPlayer() {
         audioPlayer.pause();
         audioPlayer.currentTime = 0;
         updateDurationLabel();
-    }
-
-    // Pauses audio
-    function pauseAudio() {
-        console.log("Paused")
-        playerArea.classList.toggle("play");
-        audioPlayer.pause();
-        clearInterval(timer);
     }
 
     // Updates the duration label
@@ -679,7 +681,10 @@ Required: FOUNDATION
         var selectorList = '#' + this.attr('id') + 'searchSelect3_List';
         var selectorListLi = '#' + this.attr('id') + 'searchSelect3_List_LI';
 
-        var buildELement = $('<div class="searchSelect3" id="' + idDiv + '" style="position:relative;"><input class="searchSelect3_Input" placeholder="' + opts.placeholder + '" value="' + opts.defaultvalue + '" id="' + idInput + '"><span class="material-symbols-outlined searchSelect3_Times" id="' + idClose + '">delete</span><span class="material-symbols-outlined searchSelect3_Caret_Down" id="' + idDown + '">arrow_drop_down</span></div>');
+        $(selectorInput).val(opts.defaultText);
+        $(selectorID).val(opts.defaultValue);
+
+        var buildELement = $('<div class="searchSelect3" id="' + idDiv + '" style="position:relative;"><input class="searchSelect3_Input" placeholder="' + opts.placeholder + '" value="' + opts.defaultText + '" id="' + idInput + '"><span class="material-symbols-outlined searchSelect3_Times" id="' + idClose + '">delete</span><span class="material-symbols-outlined searchSelect3_Caret_Down" id="' + idDown + '">arrow_drop_down</span></div>');
 
         if ($(selectorDiv).length > 0) {
             $(selectorDiv).remove();
@@ -709,17 +714,10 @@ Required: FOUNDATION
                     $(selectorClose).hide();
                 }
             }
-
-
-
         });
 
 
-
-
         var showList = function(query, valuee) {
-
-
 
             //Check if we've searched for this term before
             if (query in cache) {
@@ -783,12 +781,7 @@ Required: FOUNDATION
                 var optionText = results[term].text;
                 $(selectorList).append('<li id="' + idListLi + counter + '" data-value="' + optionValue + '"><label>' + optionText + '</label></li>');
             }
-
-
-
-
         };
-
 
 
         $(selectorInput).on('click', function(e) {
@@ -857,9 +850,10 @@ Required: FOUNDATION
     $.fn.select3.defaults = {
         placeholder: "",
         zIndex: 1,
-        defaultvalue: "",
+        defaultText: "",
         width: 0,
-        widthList: 0
+        widthList: 0,
+        defaultValue: "",
     };
 
 }(jQuery));
@@ -871,13 +865,17 @@ $(document).ready(function(e) {
         width: 300,
         placeholder: 'Type to search accents',
         zIndex: 100,
-        widthList: 300
+        widthList: 300,
+        defaultValue: "com",
+        defaultText: "Local/Default",
     });
     $('#selectLangList').select3({
         width: 300,
         placeholder: 'Type to search languages',
         zIndex: 100,
-        widthList: 300
+        widthList: 300,
+        defaultValue: "en",
+        defaultText: "English",
     });
 });
 
