@@ -1,6 +1,4 @@
 import os
-import socket
-import io
 import uuid
 import docx2txt
 
@@ -14,11 +12,9 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.template.loader import render_to_string
 
-
-from gtts.tts import gTTS, gTTSError
 from celery.result import AsyncResult
 
-from .forms import TypedInInputForm, FileUploadForm, VoiceAccentForm, ChooseLanguageForm
+from .forms import TextToConvertForm, FileUploadForm, VoiceAccentForm, ChooseLanguageForm
 from .tasks import convert_text_to_speech
 
 
@@ -33,13 +29,13 @@ def generate_random_id():
     return uuid.uuid4().hex[:6].upper()
 
 def home(request):
-    context = {"speech":None, "errors":[]}
-    text_input_form = TypedInInputForm(request.session.get("form"))
+    context = {}
+    text_input_form = TextToConvertForm(request.session.get("text_input_form_data"))
     file_input_form = FileUploadForm()
     voice_accent_form = VoiceAccentForm()
     choose_lang_form = ChooseLanguageForm()
     if not text_input_form:
-        text_input_form = TypedInInputForm()
+        text_input_form = TextToConvertForm()
     context['text_input_form'] = text_input_form
     context['file_input_form'] = file_input_form
     context['voice_accent_form'] = voice_accent_form
@@ -48,21 +44,21 @@ def home(request):
 
 
 def convert_input_text(request):
-    context = {"speech":None, "errors":False}
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        context = {"speech_src_mp3":"", "speech_download_mp3":"", "errors":False}
         context["form_errors"] = {}
         context["form_errors"]["file_upload_form_errors"] = []
         context["form_errors"]["voice_accent_form_errors"] = []
         context["form_errors"]["choose_lang_form_errors"] = []
 
-        text_input_form = TypedInInputForm(request.POST)
+        text_input_form = TextToConvertForm(request.POST)
         voice_accent_form = VoiceAccentForm(request.POST)
         choose_lang_form = ChooseLanguageForm(request.POST)
         
         if text_input_form.is_valid() and voice_accent_form.is_valid() and choose_lang_form.is_valid():
             text_input_form_data = text_input_form.cleaned_data
 
-            request.session['form'] = text_input_form_data
+            request.session['text_input_form_data'] = text_input_form_data
             text_to_be_converted = text_input_form_data.get('text_to_convert')
             lang = choose_lang_form.cleaned_data.get('select_lang')
             tld = voice_accent_form.cleaned_data.get('select_voice_accent')
@@ -71,7 +67,6 @@ def convert_input_text(request):
             context['get_progress_url'] = reverse('text_to_mp3:task_status', args=[task.id])
             html = render_to_string('conversion_in_progress.html')
             return JsonResponse({"html":html, "context":context}, safe=False)
-
 
         context["form_errors"]["text_input_form_errors"] = [value for _, value in text_input_form.errors.items()]
         context["form_errors"]["voice_accent_form_errors"] = [value for _, value in voice_accent_form.errors.items()]
@@ -84,9 +79,8 @@ def convert_input_text(request):
 
 
 def convert_file_content(request):
-    context = {"speech":None, "errors":False}
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest' and 'file_to_convert' in request.FILES:
-
+        context = {"speech_src_mp3":"", "speech_download_mp3":"", "errors":False}
         context["form_errors"] = {}
         context["form_errors"]["file_upload_form_errors"] = []
         context["form_errors"]["voice_accent_form_errors"] = []

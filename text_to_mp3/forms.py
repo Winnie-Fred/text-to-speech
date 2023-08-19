@@ -4,7 +4,7 @@ from django.template.defaultfilters import filesizeformat
 
 import gtts
 
-class TypedInInputForm(forms.Form):
+class TextToConvertForm(forms.Form):
     text_to_convert = forms.CharField(widget=forms.Textarea(attrs={'class': 'text', 'placeholder':"simply copy and paste..."}), required=True,)
 
 class FileUploadForm(forms.Form):
