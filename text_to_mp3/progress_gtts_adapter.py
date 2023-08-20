@@ -6,16 +6,20 @@ import base64
 
 from gtts.tts import gTTS, gTTSError
 
+from .exceptions import TaskAbortedException
+
 # Logger
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 class ProgressGTTSAdapter(gTTS):
-    def __init__(self, *args, progress_recorder=None, **kwargs):
+    def __init__(self, *args, progress_recorder=None, task=None, **kwargs):
         self.progress_recorder = progress_recorder
+        self.task = task
 
         # Remove the custom arguments from kwargs before calling the parent class's __init__ method
         kwargs.pop('progress_recorder', None)
+        kwargs.pop('task', None)
         super().__init__(*args, **kwargs)
 
     def stream(self):
@@ -36,6 +40,9 @@ class ProgressGTTSAdapter(gTTS):
         
         prepared_requests = self._prepare_requests()
         for idx, pr in enumerate(prepared_requests):
+            if self.task is not None:
+                if self.task.is_aborted():
+                    raise TaskAbortedException()
             if self.progress_recorder is not None:                
                 self.progress_recorder.set_progress(idx+1, len(prepared_requests))
             try:

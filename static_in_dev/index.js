@@ -94,7 +94,7 @@ document.body.addEventListener('change', function(event) {
             fileInput.value = '';
             cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
             document.querySelector('.select-file-text').textContent = "Please upload only .txt, .docx or .pdf files";
-            showErrorNotification(CORRECT_FORM_ERROR_MESSAGE);
+            showNotification(CORRECT_FORM_ERROR_MESSAGE);
             return
         }
 
@@ -102,7 +102,7 @@ document.body.addEventListener('change', function(event) {
             fileFlag = 1;
             cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
             document.querySelector('.select-file-text').textContent = "Please keep file size under " + MAX_UPLOAD_SIZE + ". Current filesize: " + fileSizeFormat(fileInput.files[0].size);
-            showErrorNotification(CORRECT_FORM_ERROR_MESSAGE);
+            showNotification(CORRECT_FORM_ERROR_MESSAGE);
             fileInput.value = '';
             return
         }
@@ -206,9 +206,9 @@ function handleRemoveButtonClick(event) {
 
 function removeAllErrorIndicators() {
     // Remove the error notification if it exists
-    const errorNotificationDiv = document.getElementById("error-notification-div");
-    if (errorNotificationDiv) {
-        errorNotificationDiv.remove();
+    const notificationDiv = document.getElementById("notification-div");
+    if (notificationDiv) {
+        notificationDiv.remove();
     }
 
     // Remove all red borders surrounding elements
@@ -229,29 +229,35 @@ function removeAllErrorIndicators() {
     });
 }
 
-function showErrorNotification(errorMessage) {
-    const errorNotification = document.getElementById("error-notification");
+function showNotification(message, type='error') {
+    const notification = document.getElementById("notification");
 
-    const existingErrorNotificationDiv = document.getElementById("error-notification-div");
-    if (existingErrorNotificationDiv) {
-        errorNotification.removeChild(existingErrorNotificationDiv);
+    const existingNotificationDiv = document.getElementById("notification-div");
+    if (existingNotificationDiv) {
+        notification.removeChild(existingNotificationDiv);
     }
     
-    const newErrorNotificationDiv = document.createElement("div");
-    newErrorNotificationDiv.id = "error-notification-div";
-    const errorSpan = document.createElement('span');
-    errorSpan.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
-    errorSpan.className = 'error-span';
-    const errorContent = `<span class="error-span-main-wrap">
-    <span class="material-icons-outlined">error</span>
-    <p>${errorMessage}</p>
+    const newNotificationDiv = document.createElement("div");
+    newNotificationDiv.id = "notification-div";
+    
+    const className = type === 'error' ? 'error-span' : 'success-span';
+    
+    const spanElem = document.createElement('span');
+    spanElem.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
+    spanElem.className = className;
+    
+    const icon = type === 'error' ? 'error' : 'check_circle';
+    const spanContent = `<span class="error-span-main-wrap">
+    <span class="material-icons-outlined">${icon}</span>
+    <p>${message}</p>
     </span>
     <span class="material-icons-outlined cancel-alert-button-remove">cancel</span>`;
-
-    errorSpan.innerHTML = errorContent;
-    newErrorNotificationDiv.appendChild(errorSpan);
-    errorNotification.appendChild(newErrorNotificationDiv);
+    
+    spanElem.innerHTML = spanContent;
+    newNotificationDiv.appendChild(spanElem);
+    notification.appendChild(newNotificationDiv);
 }
+
 
 function toggleContent() {
     var mainContent = document.querySelector('.main-content-wrapper');
@@ -296,9 +302,17 @@ async function uploadToServer(elementName, objectToUpload, csrftoken, url, lang,
             if (!data.context.errors) {
                 document.querySelector('.dynamic-content-wrapper').innerHTML = data.html;
                 toggleContent();
-                checkTaskProgress(data.context.get_progress_url)
+                const abortTaskUrl = data.context.abort_task_url;
+                abortButton = document.querySelector('.abort-button');
+                abortButton.addEventListener('click', () => {
+                    abortTask(abortTaskUrl);
+                });
+                const backButton = document.querySelector('.return-div');
+                backButton.classList.add("abort-task");  
+                backButton.setAttribute('data-abort-task-url', abortTaskUrl);              
+                checkTaskProgress(data.context.get_progress_url);
             } else {
-                showErrorNotification(CORRECT_FORM_ERROR_MESSAGE);
+                showNotification(CORRECT_FORM_ERROR_MESSAGE);
 
                 // Append errors to form fields
                 const formErrors = data.context.form_errors;
@@ -343,11 +357,15 @@ function checkTaskProgress(url) {
             .then(function(data) {
                 if (data.task_completed) {
                     clearInterval(interval);
-                    if (data.success) {
+                    if (data.success) {                        
+                        if (data.context.aborted) {
+                            return
+                        } 
                         document.querySelector(".dynamic-content-wrapper").innerHTML = data.html;  
                         initializeAudioPlayer();
+                        backButtonDoNotAbort(); //  Do not abort task since task has already ended and ended successfully.
                     } else {
-                        displayError(data.context.errors);
+                        displayError(data.context.errors);                        
                     }
                 } else {
                     if ((data.errors.length) === 0) {
@@ -355,7 +373,7 @@ function checkTaskProgress(url) {
                         const progress = document.querySelector('.progress-done');
                         progress.textContent = `${percentage}%`;
                         progress.style.width = `${percentage}%`;
-                        progress.style.opacity = 1;
+                        progress.style.opacity = 1;                        
                     } else {
                         displayError(data.errors);
                         clearInterval(interval);
@@ -376,6 +394,53 @@ function checkTaskProgress(url) {
     }, 1000);
 }
 
+function abortTask(url) {
+    fetch(url)
+    .then(function(response) {
+        if (response.ok) {
+            return response.json();
+        } else {
+            displayError(['An error occurred while aborting the task.']);
+        }
+    })
+    .then(function(data) {
+        if (data.errors.length === 0) {
+            toggleContent();
+            showNotification(data.message, 'success');
+        } else {
+            displayError(data.errors);
+        }
+        
+    })
+    .catch(function(response) {
+        console.log("response status: ", response.status);
+        console.log("response status text: ", response.statusText)
+
+        const error_msg = ["An error occured while trying to communicate with the server.",
+            "Sorry about that. Please try again."
+        ];
+        displayError(error_msg);
+
+    });    
+}
+
+function backButtonDoNotAbort() {
+    const backButton = document.querySelector('.return-div');
+    if (backButton && backButton.classList.contains('abort-task')) {
+        backButton.classList.remove('abort-task');
+    }
+}
+
+window.addEventListener("beforeunload", function() {
+    const backButton = document.querySelector('.return-div');
+    if (backButton && backButton.classList.contains('abort-task')) {
+        const abortTaskUrl = backButton.getAttribute('data-abort-task-url');
+        fetch(abortTaskUrl, {
+            method: "GET",        
+            keepalive: true //  to keep request open when this page is terminated.
+        });
+    }
+});
 
 function startErrorAnimation() {
     document.querySelector(".dynamic-content-wrapper").innerHTML = `<!-- Simple error animation, credits to https://codepen.io/bmartin97/pen/yLYOKVM 
@@ -402,12 +467,19 @@ function toggleBackButton() {
         spanElem.innerHTML = `<a id="return-button" title="Back" class="close"><svg id="return-arrow" class="fa-solid fa-arrow-left-long" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M109.3 288L480 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-370.7 0 73.4-73.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-128 128c-12.5 12.5-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 288z"/></svg><p>Return</p></a>`;
         header.parentNode.insertBefore(spanElem, header.nextSibling);
         spanElem.addEventListener("click", () => {
-            toggleContent();
+            if (spanElem.classList.contains('abort-task')) {
+                const abortTaskUrl = spanElem.getAttribute('data-abort-task-url');
+                abortTask(abortTaskUrl);
+            } else {
+                toggleContent();
+            }
         });
     }
 }
 
 function displayError(errorList) {
+    
+    backButtonDoNotAbort(); //  Do not abort task if error has occured as task has already ended.
 
     startErrorAnimation();
     const errorContainer = document.querySelector(".error-container");
@@ -450,7 +522,7 @@ uploadButton.addEventListener("click", () => {
     } else {
         document.querySelector('.select-file-text').textContent = " Please select a file first ";
         cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
-        showErrorNotification(CORRECT_FORM_ERROR_MESSAGE);
+        showNotification(CORRECT_FORM_ERROR_MESSAGE);
     }
 });
 
@@ -467,7 +539,7 @@ textConvertButton.addEventListener("click", () => {
         cannotLeaveFieldBlank.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
         const container = document.querySelector(".text").closest(".container");
         container.classList.add("error-border");
-        showErrorNotification(CORRECT_FORM_ERROR_MESSAGE);
+        showNotification(CORRECT_FORM_ERROR_MESSAGE);
     }
 
 });
@@ -517,7 +589,7 @@ if (isAdvancedUpload) {
             fileInput.value = '';
             cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
             document.querySelector('.select-file-text').textContent = "Please upload only .txt, .docx or .pdf files";
-            showErrorNotification(CORRECT_FORM_ERROR_MESSAGE);
+            showNotification(CORRECT_FORM_ERROR_MESSAGE);
             return
         }
 
@@ -525,7 +597,7 @@ if (isAdvancedUpload) {
             fileFlag = 1;
             cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
             document.querySelector('.select-file-text').textContent = "Please keep file size under " + MAX_UPLOAD_SIZE + ". Current filesize: " + fileSizeFormat(files[0].size);
-            showErrorNotification(CORRECT_FORM_ERROR_MESSAGE);
+            showNotification(CORRECT_FORM_ERROR_MESSAGE);
             fileInput.value = '';
             return
         }

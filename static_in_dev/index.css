@@ -527,7 +527,7 @@ body {
   opacity: 0;
 }
 .cannot-upload-message,
-.error-span {
+.error-span, .success-span {
   background-color: #ffc6c4;
   font-size: 17px;
   align-items: center;
@@ -538,11 +538,16 @@ body {
   display: none;
 }
 
+.success-span {
+  background-color: #cbffc4;
+  color: #45bb00;
+}
+
 .cannot-upload-message{
   margin-bottom: 30px;
 }
 
-.error-span{
+.error-span, .success-span {
   padding: 10px;
   justify-content: space-between;
   margin-top: 30px;
@@ -566,11 +571,11 @@ body {
 
 }
 
-.error-span p{
+.error-span p, .success-span p {
   color: #000;
 }
 
-.error-span span:last-child{
+.error-span span:last-child, .success-span span:last-child {
   margin: 0;
   padding: 0;
 }
@@ -633,17 +638,17 @@ body {
   }
 }
 .cannot-upload-message span,
-.error-span span,
+.error-span span, .success-span span,
 .upload-button-icon {
   padding-right: 10px;
 }
 .cannot-upload-message span:last-child,
-.error-span span:last-child {
+.error-span span:last-child, .success-span span:last-child  {
   padding-left: 20px;
   cursor: pointer;
 }
 
-.error-span {
+.error-span, .success-span {
   width: 100%;
   margin-top: 30px;
 }
@@ -1616,16 +1621,15 @@ margin: 20px 0px;
 }
 /* Settings section */
 
-/* Conversion Progress bar */
+/* Conversion Progress */
 
-/* CSS for the progress bar and description */
 .progress-container {
 	flex-direction: column;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	height: 100vh;
-	margin: 0;
+	margin: 170px 0 0 0;
 }
 
 .progress {
@@ -1659,9 +1663,28 @@ margin: 20px 0px;
 }
 
 .extra-progress-description {
-  font-size: 18px;
+  font-size: 14px;
   text-align: center;
-  margin-top: 20px;
+  margin-top: 70px;
 } 
 
-/* Conversion Progress bar */
+.abort-button {
+  font-family: "Montserrat";
+  background-color: transparent;
+  color: #d90429;
+  display: inline-block;
+  font-size: 18px;
+  border: 2px solid #d90429;
+  border-radius: 20px;
+  margin-top: 50px;
+  padding: 10.5px 50px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.abort-button:hover {
+  background-color: #d90429;
+  color: #fff;
+}
+
+/* Conversion Progress */

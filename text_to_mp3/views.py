@@ -45,7 +45,8 @@ def home(request):
 
 def convert_input_text(request):
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        context = {"speech_src_mp3":"", "speech_download_mp3":"", "errors":False}
+        context = {"speech_src_mp3":"", "speech_download_mp3":"", "get_progress_url":"", 
+                   "abort_task_url":"", "errors":False, "aborted":False}
         context["form_errors"] = {}
         context["form_errors"]["file_upload_form_errors"] = []
         context["form_errors"]["voice_accent_form_errors"] = []
@@ -65,6 +66,7 @@ def convert_input_text(request):
             file_name = "speech-" + generate_random_id()
             task = convert_text_to_speech.delay(text_to_be_converted, lang, tld, file_name, context)
             context['get_progress_url'] = reverse('text_to_mp3:task_status', args=[task.id])
+            context['abort_task_url'] = reverse('text_to_mp3:abort_task', args=[task.id])
             html = render_to_string('conversion_in_progress.html')
             return JsonResponse({"html":html, "context":context}, safe=False)
 
@@ -80,7 +82,8 @@ def convert_input_text(request):
 
 def convert_file_content(request):
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest' and 'file_to_convert' in request.FILES:
-        context = {"speech_src_mp3":"", "speech_download_mp3":"", "errors":False}
+        context = {"speech_src_mp3":"", "speech_download_mp3":"", "get_progress_url":"", 
+                   "abort_task_url":"", "errors":False, "aborted":False}
         context["form_errors"] = {}
         context["form_errors"]["file_upload_form_errors"] = []
         context["form_errors"]["voice_accent_form_errors"] = []
@@ -117,6 +120,7 @@ def convert_file_content(request):
 
                 task = convert_text_to_speech.delay(text, lang, tld, file_name, context)
                 context['get_progress_url'] = reverse('text_to_mp3:task_status', args=[task.id])
+                context['abort_task_url'] = reverse('text_to_mp3:abort_task', args=[task.id])
                 html = render_to_string('conversion_in_progress.html')
                 return JsonResponse({"html":html, "context":context}, safe=False)
 
@@ -139,6 +143,7 @@ def get_conversion_progress(request, task_id):
         'task_completed': False,
         'progress': 0,    
         'success': False,
+        'aborted': False,
         'errors': []
     }
 
@@ -149,7 +154,8 @@ def get_conversion_progress(request, task_id):
     task = AsyncResult(task_id)
 
     if task.info is None:
-        response_data['errors'].append('Something went wrong: Failed to start conversion')
+        if task.state not in ['PENDING', 'STARTED', 'SUCCESS']:
+            response_data['errors'].append('Oops! Something went wrong.')
         return JsonResponse(response_data)
 
     response_data['task_completed'] = task.ready()
@@ -161,13 +167,25 @@ def get_conversion_progress(request, task_id):
             if not task.result.get('context')['errors']:
                 response_data['success'] = True
                 response_data['html'] = task.result.get('html')
-                response_data['context'] = task.result.get('context')
+                response_data['context'] = task.result.get('context')               
             else:
                 response_data['context'] = {}
                 response_data['context']['errors'] = task.result.get('context')['errors']
         else:
             # Handle other task states (e.g., 'FAILURE', 'REVOKED', etc.)
             response_data['errors'].extend(['Something went wrong!', 'Task failed or revoked'])
+    return JsonResponse(response_data)
+
+
+def abort_task(request, task_id):
+    response_data = {'errors':[], 'message':""}
+    if not task_id:
+        response_data['errors'].append('Invalid task ID')
+        return JsonResponse(response_data)
+    
+    task = convert_text_to_speech.AsyncResult(task_id)   
+    task.abort()
+    response_data['message'] = "The conversion has been aborted"
     return JsonResponse(response_data)
 
 
