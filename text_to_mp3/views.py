@@ -174,7 +174,7 @@ def get_conversion_progress(request, task_id):
 
 
 def abort_task(request, task_id):
-    response_data = {'errors':[], 'message':""}
+    response_data = {'message':""}
     
     task = convert_text_to_speech.AsyncResult(task_id)   
     task.abort()
