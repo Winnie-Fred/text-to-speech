@@ -404,13 +404,8 @@ function abortTask(url) {
         }
     })
     .then(function(data) {
-        if (data.errors.length === 0) {
-            toggleContent();
-            showNotification(data.message, 'success');
-        } else {
-            displayError(data.errors);
-        }
-        
+        toggleContent();
+        showNotification(data.message, 'success');
     })
     .catch(function(response) {
         console.log("response status: ", response.status);
