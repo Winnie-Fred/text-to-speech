@@ -649,6 +649,7 @@ function initializeAudioPlayer(audioData) {
     const audioPlayer = document.getElementById("audioPlayer");
     audioPlayer.volume = 0.5;
     const volumeSlider = document.getElementById("volumeSlider");
+    const seekBar = document.getElementById("seekBar");
     let dataAvailable = false;
     let currentLength;
     let timer;
@@ -687,6 +688,18 @@ function initializeAudioPlayer(audioData) {
     audioPlayer.addEventListener("loadeddata", () => {
         dataAvailable = true;
         currentLength = audioPlayer.duration;
+        
+        audioPlayer.addEventListener('timeupdate', () => {
+            const currentTime = audioPlayer.currentTime;
+            const progressWidth = (currentTime / currentLength) * 100;
+            seekBar.value = progressWidth;
+        });
+        
+        seekBar.addEventListener('input', (e) => {
+            const seekPercentage = parseInt(e.target.value);
+            const newTime = (seekPercentage / 100) * currentLength;
+            audioPlayer.currentTime = newTime;
+        });
     });
 
 
