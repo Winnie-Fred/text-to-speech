@@ -1,27 +1,26 @@
 import os
 import uuid
-import docx2txt
+import base64
+import urllib.parse
 
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
+from io import BytesIO
+
+import docx2txt
 import fitz
+
 
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.urls import reverse
 from django.template.loader import render_to_string
+from django.http import FileResponse, HttpResponseBadRequest
+
 
 from celery.result import AsyncResult
 
 from .forms import TextToConvertForm, FileUploadForm, VoiceAccentForm, ChooseLanguageForm
 from .tasks import convert_text_to_speech
 
-
-cloudinary.config(cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
-                  api_key=os.getenv('CLOUDINARY_API_KEY'),
-                  api_secret=os.getenv('CLOUDINARY_API_SECRET'),
-                  secure=True)
 
 # Create your views here.
 
@@ -45,7 +44,8 @@ def home(request):
 
 def convert_input_text(request):
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        context = {"speech_src_mp3":"", "speech_download_mp3":"", "get_progress_url":"", 
+        context = {"url_encoded_audio_data":"", "file_name":"", "get_progress_url":"",
+                   "audio_data":"", "full_length_file_name":"",
                    "abort_task_url":"", "errors":False, "aborted":False}
         context["form_errors"] = {}
         context["form_errors"]["file_upload_form_errors"] = []
@@ -82,7 +82,8 @@ def convert_input_text(request):
 
 def convert_file_content(request):
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest' and 'file_to_convert' in request.FILES:
-        context = {"speech_src_mp3":"", "speech_download_mp3":"", "get_progress_url":"", 
+        context = {"url_encoded_audio_data":"", "file_name":"", "get_progress_url":"",
+                   "audio_data":"", "full_length_file_name":"",
                    "abort_task_url":"", "errors":False, "aborted":False}
         context["form_errors"] = {}
         context["form_errors"]["file_upload_form_errors"] = []
@@ -144,7 +145,9 @@ def get_conversion_progress(request, task_id):
         'progress': 0,    
         'success': False,
         'aborted': False,
-        'errors': []
+        'errors': [],
+        'html':'',
+        'context':{},
     }
     
     task = AsyncResult(task_id)
@@ -160,13 +163,16 @@ def get_conversion_progress(request, task_id):
     
     if response_data['task_completed']:
         if task.state == 'SUCCESS':
-            if not task.result.get('context')['errors']:
+            context = task.result.get('context')
+            if not context['errors']:
                 response_data['success'] = True
                 response_data['html'] = task.result.get('html')
-                response_data['context'] = task.result.get('context')               
+                response_data['context'] = context
+
+                request.session['url_encoded_audio_data'] = context['url_encoded_audio_data']
+                request.session['file_name'] = context['full_length_file_name']
             else:
-                response_data['context'] = {}
-                response_data['context']['errors'] = task.result.get('context')['errors']
+                response_data['context']['errors'] = context['errors']
         else:
             # Handle other task states (e.g., 'FAILURE', 'REVOKED', etc.)
             response_data['errors'].extend(['Something went wrong!', 'Task failed or revoked'])
@@ -174,12 +180,26 @@ def get_conversion_progress(request, task_id):
 
 
 def abort_task(request, task_id):
-    response_data = {'message':""}
-    
     task = convert_text_to_speech.AsyncResult(task_id)   
     task.abort()
-    response_data['message'] = "The conversion has been aborted"
+    response_data = {'message':"The conversion has been aborted"}
     return JsonResponse(response_data)
+
+def download_audio(request):
+    url_encoded_audio_data = request.session.get('url_encoded_audio_data', '')
+    file_name = request.session.get('file_name', '')
+    
+    if url_encoded_audio_data:
+        decoded_audio_data = base64.b64decode(urllib.parse.unquote_plus(url_encoded_audio_data))
+        audio_bytes_io = BytesIO(decoded_audio_data)
+        
+        audio_file_name = file_name if file_name else 'speech.mp3'
+        
+        response = FileResponse(audio_bytes_io, content_type='audio/mpeg')
+        response['Content-Disposition'] = f'attachment; filename="{audio_file_name}"'        
+        return response
+    else:
+        return HttpResponseBadRequest("Missing or invalid audio data")
 
 
 def extract_text_from_pdf(file):

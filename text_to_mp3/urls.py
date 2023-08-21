@@ -9,5 +9,6 @@ urlpatterns = [
     path('convert_file_content', views.convert_file_content, name='convert_file_content'),
     re_path(r'^(?P<task_id>[\w-]+)/$', views.get_conversion_progress, name='task_status'),
     re_path(r'^abort_task/(?P<task_id>[\w-]+)/$', views.abort_task, name='abort_task'),
+    path('download_audio', views.download_audio, name='download_audio'),
 
 ]

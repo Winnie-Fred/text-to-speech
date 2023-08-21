@@ -1,9 +1,7 @@
 import io
 import socket
-
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
+import base64
+import urllib.parse
 
 from django.template.loader import render_to_string
 
@@ -27,20 +25,16 @@ def convert_text_to_speech(self, text, lang, tld, file_name, context):
 
         bytes_file = io.BytesIO()
         speech.write_to_fp(bytes_file)
-        folder_name = 'text_to_speech'
 
-        response = cloudinary.uploader.upload(
-            file=bytes_file.getvalue(), public_id=file_name, unique_filename=False, overwrite=True,
-            resource_type='video',
-            folder=folder_name,
-        )
-        src_url = response['secure_url']
-        public_id = response['public_id']
-        downloadable_url = cloudinary.utils.cloudinary_url(public_id, resource_type='video', transformation={'flags': f'attachment:{file_name}'})[0]
-
-        context["speech_src_mp3"] = src_url
-        context["speech_download_mp3"] = downloadable_url
+        bytes_file.seek(0)
+        audio_data = base64.b64encode(bytes_file.read()).decode()
+        url_encoded_audio_data = urllib.parse.quote_plus(audio_data)
+        context["url_encoded_audio_data"] = url_encoded_audio_data
         context["file_name"] = file_name[:15] + '...' + '.mp3' if len(file_name) > 15 else file_name + '.mp3'
+        context["audio_data"] = audio_data
+        file_name = f"{file_name}.mp3"
+        context["full_length_file_name"] = file_name
+
         html = render_to_string('conversion_successful.html', context)
         return {"html": html, "context": context}
     except TaskAbortedException:

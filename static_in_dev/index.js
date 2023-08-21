@@ -362,10 +362,11 @@ function checkTaskProgress(url) {
                             return
                         } 
                         document.querySelector(".dynamic-content-wrapper").innerHTML = data.html;  
-                        initializeAudioPlayer();
+                        const audioData = data.context.audio_data;
+                        initializeAudioPlayer(audioData);
                         backButtonDoNotAbort(); //  Do not abort task since task has already ended and ended successfully.
                     } else {
-                        displayError(data.context.errors);                        
+                        displayError(data.context.errors); 
                     }
                 } else {
                     if ((data.errors.length) === 0) {
@@ -636,7 +637,7 @@ clear.onclick = function() {
 }
 
 
-function initializeAudioPlayer() {
+function initializeAudioPlayer(audioData) {
     // Media player
 
     const speak_div = document.querySelector(".play div");
@@ -651,6 +652,10 @@ function initializeAudioPlayer() {
     let dataAvailable = false;
     let currentLength;
     let timer;
+
+    const audioBlob = new Blob([Uint8Array.from(atob(audioData), c => c.charCodeAt(0))], { type: 'audio/wav' });
+    const audioUrl = URL.createObjectURL(audioBlob);
+    audioPlayer.src = audioUrl;
 
     timer = setInterval(updateDurationLabel, 100);
 
