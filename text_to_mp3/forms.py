@@ -4,14 +4,15 @@ from django.template.defaultfilters import filesizeformat
 
 import gtts
 
+
+MAX_NO_OF_CHARS = 2500
+MAX_FILE_UPLOAD_SIZE = 10 * 1024
+
+
 class TextToConvertForm(forms.Form):
-    text_to_convert = forms.CharField(widget=forms.Textarea(attrs={'class': 'text', 'placeholder':"simply copy and paste..."}), required=True,)
+    text_to_convert = forms.CharField(widget=forms.Textarea(attrs={'class': 'text', 'placeholder':"simply copy and paste..."}), required=True, max_length=MAX_NO_OF_CHARS, )
 
 class FileUploadForm(forms.Form):
-
-    MAX_UPLOAD_SIZE_IN_MB = 50
-    ONE_MB_IN_BYTES = 1024 * 1024
-    MAX_UPLOAD_SIZE_IN_BYTES = MAX_UPLOAD_SIZE_IN_MB * ONE_MB_IN_BYTES
 
     file_to_convert = forms.FileField(widget=forms.ClearableFileInput(attrs={'class':'default-file-input', 'accept':'.txt,.docx,.pdf'}), 
                                       required=True,)
@@ -24,8 +25,8 @@ class FileUploadForm(forms.Form):
             if not (filename.endswith('.txt') or filename.endswith('.docx') or filename.endswith('.pdf')):
                 raise forms.ValidationError("Please upload only .txt, .docx or .pdf files")
 
-            if file.size > self.MAX_UPLOAD_SIZE_IN_BYTES:
-                raise forms.ValidationError(_('Please keep filesize under %s. Current filesize: %s') % (filesizeformat(self.MAX_UPLOAD_SIZE_IN_BYTES), 
+            if file.size > MAX_FILE_UPLOAD_SIZE:
+                raise forms.ValidationError(_('Please keep file size under %s. Current file size: %s') % (filesizeformat(MAX_FILE_UPLOAD_SIZE), 
                                                                                                         filesizeformat(file.size)))
 
         return file

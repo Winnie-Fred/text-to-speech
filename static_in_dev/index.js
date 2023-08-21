@@ -24,10 +24,8 @@ let uploadButton = document.querySelector(".upload-button");
 let textConvertButton = document.querySelector(".convert-entered-text-btn");
 let fileFlag = 0;
 
-let MAX_UPLOAD_SIZE_IN_MB = 50;
-let ONE_MB_IN_BYTES = 1000 * 1000;
-let MAX_UPLOAD_SIZE_IN_BYTES = MAX_UPLOAD_SIZE_IN_MB * ONE_MB_IN_BYTES;
-let MAX_UPLOAD_SIZE = fileSizeFormat(MAX_UPLOAD_SIZE_IN_BYTES);
+let MAX_UPLOAD_SIZE_IN_BYTES = 10 * 1000;
+let MAX_UPLOAD_SIZE_FORMATTED = fileSizeFormat(MAX_UPLOAD_SIZE_IN_BYTES);
 
 function fileSizeFormat(bytes) {
     try {
@@ -111,7 +109,7 @@ document.body.addEventListener('change', function(event) {
         if (fileInput.files[0].size > MAX_UPLOAD_SIZE_IN_BYTES) {
             fileFlag = 1;
             cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
-            document.querySelector('.select-file-text').textContent = "Please keep file size under " + MAX_UPLOAD_SIZE + ". Current filesize: " + fileSizeFormat(fileInput.files[0].size);
+            document.querySelector('.select-file-text').textContent = "Please keep file size under " + MAX_UPLOAD_SIZE_FORMATTED + ". Current file size: " + fileSizeFormat(fileInput.files[0].size);
             showNotification(CORRECT_FORM_ERROR_MESSAGE);
             fileInput.value = '';
             return
@@ -204,6 +202,10 @@ function handleRemoveButtonClick(event) {
         adjacentElement = adjacentElement.previousElementSibling;
     }
 
+    if (!adjacentElement) {
+        adjacentElement = errorSpan.previousElementSibling;
+    }
+
     if (adjacentElement) {
         const errorBorderElement = adjacentElement.querySelector('.error-border');
         if (errorBorderElement) {
@@ -251,13 +253,13 @@ function showNotification(message, type='error') {
     const newNotificationDiv = document.createElement("div");
     newNotificationDiv.id = "notification-div";
     
-    const className = type === 'error' ? 'error-span' : 'success-span';
+    const className = type === 'error' ? 'error-span' : type === 'info' ? 'info-span' : 'success-span';
     
     const spanElem = document.createElement('span');
     spanElem.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
     spanElem.className = className;
     
-    const icon = type === 'error' ? 'error' : 'check_circle';
+    const icon = type === 'error' ? 'error' : type === 'info' ? 'info' : 'check_circle';
     const spanContent = `<span class="error-span-main-wrap">
     <span class="material-icons-outlined">${icon}</span>
     <p>${message}</p>
@@ -313,7 +315,6 @@ function uploadToServer(elementName, objectToUpload, csrftoken, url, lang, accen
                     if (e.lengthComputable) {
                         const uploadProgress = (e.loaded/e.total) * 100;
                         progressBar.style.width = `${uploadProgress}%`;
-                        console.log("progress: ", uploadProgress);
                         if (e.loaded === e.total) {
                             uploadButton.innerHTML = `<span class="material-icons-outlined upload-button-icon"> check_circle </span> Uploaded`;
                         }
@@ -334,6 +335,9 @@ function uploadToServer(elementName, objectToUpload, csrftoken, url, lang, accen
                 abortTask(abortTaskUrl);
             });
             $('.return-div').addClass('abort-task').attr('data-abort-task-url', abortTaskUrl);
+            if (data.context.extra_info) {
+                showNotification(data.context.extra_info, 'info');
+            }
             checkTaskProgress(data.context.get_progress_url);
         } else {
             showNotification(CORRECT_FORM_ERROR_MESSAGE);
@@ -489,19 +493,41 @@ function toggleBackButton() {
     if (backButton) {
         backButton.remove();
     } else {
-        var header = document.querySelector("header")
+        var returnDivWrapper = document.getElementById("return-div-wrapper")
         var spanElem = document.createElement("span");
         spanElem.className = "return-div";
-        spanElem.innerHTML = `<a id="return-button" title="Back" class="close"><svg id="return-arrow" class="fa-solid fa-arrow-left-long" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M109.3 288L480 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-370.7 0 73.4-73.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-128 128c-12.5 12.5-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 288z"/></svg><p>Return</p></a>`;
-        header.parentNode.insertBefore(spanElem, header.nextSibling);
-        spanElem.addEventListener("click", () => {
+        spanElem.innerHTML = `<div id="return-button"><div class="arrow-wrap"><span class="arrow-part-1"></span><span class="arrow-part-2"></span><span class="arrow-part-3"></span></div></div>`;
+        returnDivWrapper.parentNode.insertBefore(spanElem, returnDivWrapper.nextSibling);
+
+        function backAnim() {
+            const returnButton = document.getElementById("return-button");
+            if (returnButton.classList.contains('back')) {
+                returnButton.classList.remove('back');
+                returnButton.addEventListener('transitionend', onAnimationEnd, { once: true });
+            } else {
+                returnButton.classList.add('back');
+                setTimeout(backAnim, 1000);
+            }
+        }
+        
+        function onAnimationEnd() {
+            // This function will be executed when the animation is complete
+        
             if (spanElem.classList.contains('abort-task')) {
                 const abortTaskUrl = spanElem.getAttribute('data-abort-task-url');
                 abortTask(abortTaskUrl);
             } else {
                 toggleContent();
             }
+        
+            // Remove the event listener to avoid multiple executions
+            spanElem.removeEventListener('transitionend', onAnimationEnd);
+        }
+        
+        spanElem.addEventListener("click", () => {
+            backAnim();
         });
+        
     }
 }
 
@@ -613,7 +639,7 @@ if (isAdvancedUpload) {
         if (files[0].size > MAX_UPLOAD_SIZE_IN_BYTES) {
             fileFlag = 1;
             cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
-            document.querySelector('.select-file-text').textContent = "Please keep file size under " + MAX_UPLOAD_SIZE + ". Current filesize: " + fileSizeFormat(files[0].size);
+            document.querySelector('.select-file-text').textContent = "Please keep file size under " + MAX_UPLOAD_SIZE_FORMATTED + ". Current file size: " + fileSizeFormat(files[0].size);
             showNotification(CORRECT_FORM_ERROR_MESSAGE);
             fileInput.value = '';
             return

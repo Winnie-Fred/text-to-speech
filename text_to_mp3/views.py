@@ -18,7 +18,7 @@ from django.http import FileResponse, HttpResponseBadRequest
 
 from celery.result import AsyncResult
 
-from .forms import TextToConvertForm, FileUploadForm, VoiceAccentForm, ChooseLanguageForm
+from .forms import TextToConvertForm, FileUploadForm, VoiceAccentForm, ChooseLanguageForm, MAX_NO_OF_CHARS
 from .tasks import convert_text_to_speech
 
 
@@ -46,9 +46,10 @@ def convert_input_text(request):
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         context = {"url_encoded_audio_data":"", "file_name":"", "get_progress_url":"",
                    "audio_data":"", "full_length_file_name":"",
-                   "abort_task_url":"", "errors":False, "aborted":False}
+                   "abort_task_url":"", "errors":False, "aborted":False,
+                   "extra_info":''}
         context["form_errors"] = {}
-        context["form_errors"]["file_upload_form_errors"] = []
+        context["form_errors"]["text_input_form_errors"] = []
         context["form_errors"]["voice_accent_form_errors"] = []
         context["form_errors"]["choose_lang_form_errors"] = []
 
@@ -84,7 +85,8 @@ def convert_file_content(request):
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest' and 'file_to_convert' in request.FILES:
         context = {"url_encoded_audio_data":"", "file_name":"", "get_progress_url":"",
                    "audio_data":"", "full_length_file_name":"",
-                   "abort_task_url":"", "errors":False, "aborted":False}
+                   "abort_task_url":"", "errors":False, "aborted":False,
+                   "extra_info":''}
         context["form_errors"] = {}
         context["form_errors"]["file_upload_form_errors"] = []
         context["form_errors"]["voice_accent_form_errors"] = []
@@ -113,21 +115,27 @@ def convert_file_content(request):
                 context["errors"] = True
                 return JsonResponse({"context":context})
 
-            if text.strip():
-                base_name, _ = os.path.splitext(file_name)
-                file_name = f"{base_name}-{generate_random_id()}"
-                tld = voice_accent_form.cleaned_data.get('select_voice_accent')
-                lang = choose_lang_form.cleaned_data.get('select_lang')
+            if not text.strip():
+                context["form_errors"]["file_upload_form_errors"] = ["The submitted file must contain text."]
+                context["errors"] = True
+                return JsonResponse({"context":context})
 
-                task = convert_text_to_speech.delay(text, lang, tld, file_name, context)
-                context['get_progress_url'] = reverse('text_to_mp3:task_status', args=[task.id])
-                context['abort_task_url'] = reverse('text_to_mp3:abort_task', args=[task.id])
-                html = render_to_string('conversion_in_progress.html')
-                return JsonResponse({"html":html, "context":context}, safe=False)
+            if len(text) > MAX_NO_OF_CHARS:
+                context["extra_info"] = [f"The uploaded file has {len(text)} characters. Only the first {MAX_NO_OF_CHARS} characters will be converted to speech."]             
+                text = text[:MAX_NO_OF_CHARS]
 
-            context["form_errors"]["file_upload_form_errors"] = ["The submitted file must contain text."]
-            context["errors"] = True
-            return JsonResponse({"context":context})
+
+            base_name, _ = os.path.splitext(file_name)
+            file_name = f"{base_name}-{generate_random_id()}"
+            tld = voice_accent_form.cleaned_data.get('select_voice_accent')
+            lang = choose_lang_form.cleaned_data.get('select_lang')
+
+            task = convert_text_to_speech.delay(text, lang, tld, file_name, context)
+            context['get_progress_url'] = reverse('text_to_mp3:task_status', args=[task.id])
+            context['abort_task_url'] = reverse('text_to_mp3:abort_task', args=[task.id])
+            html = render_to_string('conversion_in_progress.html')
+            return JsonResponse({"html":html, "context":context}, safe=False)
+
             
         context["form_errors"]["file_upload_form_errors"] = [value for _, value in file_upload_form.errors.items()]
         context["form_errors"]["voice_accent_form_errors"] = [value for _, value in voice_accent_form.errors.items()]
