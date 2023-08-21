@@ -693,7 +693,7 @@ body {
   display: flex;
   position: absolute;
   bottom: 0;
-  left: 4.5%;
+  left: 0%;
   width: 0;
   height: 5px;
   border-radius: 25px;
@@ -714,6 +714,10 @@ body {
   margin: 10px !important;
   padding: 10.5px 50px !important;
   cursor: pointer !important;
+}
+
+.upload-button[disabled] {
+  cursor: not-allowed;
 }
 
 .convert-entered-text-btn {

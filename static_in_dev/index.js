@@ -76,16 +76,26 @@ function resetFileUploadForm(fileInputField) {
         dragDropText.innerHTML = 'Drag & drop any file here';
         document.querySelector(".label").innerHTML = `or <span class="browse-files"><input name="file_to_convert" accept=".txt,.docx,.pdf" type="file" class="default-file-input"/><span class="browse-files-text"> browse file </span><span>from device</span></span>`;
         uploadButton.innerHTML = `Upload`;
+        uploadButton.disabled = false;
     }
 }
 
 document.addEventListener("click", function(e) {
     const target = e.target.closest(".default-file-input");
-    resetFileUploadForm(target);
+
+    if (target) {
+        target.value = '';
+        fileInput = target;
+        uploadedFile.style.cssText = "display: none;";
+        uploadIcon.innerHTML = 'file_upload';
+        dragDropText.innerHTML = 'Drag & drop any file here';
+        uploadButton.innerHTML = `Upload`;
+        uploadButton.disabled = false;
+    }
 });
 
 document.body.addEventListener('change', function(event) {
-    if (event.target.className == 'default-file-input') {
+    if (event.target.className === 'default-file-input') {
         fileInput = event.target;
         const nameOfFile = fileInput.files[0].name
         const nameOfFileLowercased = nameOfFile.toLowerCase();
@@ -108,9 +118,10 @@ document.body.addEventListener('change', function(event) {
         }
 
         uploadIcon.innerHTML = 'check_circle';
-        dragDropText.innerHTML = 'File Dropped Successfully!';
+        dragDropText.innerHTML = 'File Selected Successfully!';
         document.querySelector(".label").innerHTML = `Drag & drop or <span class="browse-files"><input type="file" class="default-file-input" accept=".txt,.docx,.pdf" name="file_to_convert" style=""/><span class="browse-files-text">browse file</span></span>`;
         uploadButton.innerHTML = `Upload`;
+        uploadButton.disabled = false;
         fileName.innerHTML = nameOfFile;
         fileSize.innerHTML = fileSizeFormat(fileInput.files[0].size);
         uploadedFile.style.cssText = "display: flex;";
@@ -267,7 +278,7 @@ function toggleContent() {
         dynamicContent.innerHTML = '';
         dynamicContent.style.display = 'none';
         mainContent.style.display = 'flex';
-        fileInputField = document.querySelector(".default-file-input");
+        const fileInputField = document.querySelector(".default-file-input");
         resetFileUploadForm(fileInputField);
     } else {
         mainContent.style.display = 'none';
@@ -276,71 +287,92 @@ function toggleContent() {
     toggleBackButton();
 }
 
-async function uploadToServer(elementName, objectToUpload, csrftoken, url, lang, accent) {
+function uploadToServer(elementName, objectToUpload, csrftoken, url, lang, accent, trackProgress) {
     let formData = new FormData();
     formData.append(elementName, objectToUpload);
     formData.append('select_lang', lang);
     formData.append('select_voice_accent', accent);
-    await fetch(url, {
-            body: formData,
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest', //  Necessary to work with request.is_ajax()
-                'X-CSRFToken': csrftoken,
-            },
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json(); //  Convert response to JSON
-            }
-            return Promise.reject(response); // reject instead of throw
-        })
-        .then(data => {
-            // Perform actions with the response data from the view
-            if (!data.context.errors) {
-                document.querySelector('.dynamic-content-wrapper').innerHTML = data.html;
-                toggleContent();
-                const abortTaskUrl = data.context.abort_task_url;
-                abortButton = document.querySelector('.abort-button');
-                abortButton.addEventListener('click', () => {
-                    abortTask(abortTaskUrl);
+    const uploadToServerRequest = $.ajax({
+        url: url,
+        type: 'POST',
+        data: formData,
+        dataType: 'json',
+        processData: false,
+        contentType: false,
+        cache: false,
+        enctype: 'multipart/form-data',
+        beforeSend: function(xhr) {
+        xhr.setRequestHeader('Accept', 'application/json');
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest'); //  Necessary to work with django's request.headers.get('x-requested-with') == 'XMLHttpRequest'
+        xhr.setRequestHeader('X-CSRFToken', csrftoken);
+        },
+        xhr: function () {
+            const xhr = new window.XMLHttpRequest();
+            if (trackProgress) {
+                xhr.upload.addEventListener('progress', e => {
+                    if (e.lengthComputable) {
+                        const uploadProgress = (e.loaded/e.total) * 100;
+                        progressBar.style.width = `${uploadProgress}%`;
+                        console.log("progress: ", uploadProgress);
+                        if (e.loaded === e.total) {
+                            uploadButton.innerHTML = `<span class="material-icons-outlined upload-button-icon"> check_circle </span> Uploaded`;
+                        }
+
+                    }
                 });
-                const backButton = document.querySelector('.return-div');
-                backButton.classList.add("abort-task");  
-                backButton.setAttribute('data-abort-task-url', abortTaskUrl);              
-                checkTaskProgress(data.context.get_progress_url);
-            } else {
-                showNotification(CORRECT_FORM_ERROR_MESSAGE);
-
-                // Append errors to form fields
-                const formErrors = data.context.form_errors;
-                const formFields = ['voice_accent_form', 'choose_lang_form'];
-
-                if ('file_upload_form_errors' in data.context.form_errors) {
-                    formFields.push('file_upload_form')
-                } else if ('text_input_form_errors' in data.context.form_errors) {
-                    formFields.push('text_input_form')
-                }
-
-                formFields.forEach((fieldName) => {
-                    appendErrorSpan(fieldName, formErrors);
-                });                
+                uploadButton.disabled = true;
             }
-        })
-        .catch((response) => {
-            console.log("response status: ", response.status);
-            console.log("response status text: ", response.statusText)
-
-            const error_msg = ["An error occured while trying to communicate with the server.",
+            return xhr;
+        },
+        success: function(data) {
+        if (!data.context.errors) {
+            // Perform actions with the response data from the view
+            $('.dynamic-content-wrapper').html(data.html);
+            toggleContent();
+            const abortTaskUrl = data.context.abort_task_url;
+            $('.abort-button').on('click', function() {
+                abortTask(abortTaskUrl);
+            });
+            $('.return-div').addClass('abort-task').attr('data-abort-task-url', abortTaskUrl);
+            checkTaskProgress(data.context.get_progress_url);
+        } else {
+            showNotification(CORRECT_FORM_ERROR_MESSAGE);
+    
+            // Append errors to form fields
+            const formErrors = data.context.form_errors;
+            const formFields = ['voice_accent_form', 'choose_lang_form'];
+    
+            if ('file_upload_form_errors' in data.context.form_errors) {
+                formFields.push('file_upload_form');
+            } else if ('text_input_form_errors' in data.context.form_errors) {
+                formFields.push('text_input_form');
+            }
+    
+            formFields.forEach(function(fieldName) {
+                appendErrorSpan(fieldName, formErrors);
+            });
+        }
+        },
+        error: function(xhr, status, error) {
+            if (status === 'abort') {
+                return
+            }
+            console.log('response status: ', status);
+            console.log('response status text: ', error);
+        
+            const error_msg = [
+                "An error occurred while trying to communicate with the server.",
                 "Sorry about that. Please try again."
             ];
-            
+        
             toggleContent();
             displayError(error_msg);
-
-        });;
+        }
+    });
+    removeFileButton.addEventListener("click", () => {
+        uploadToServerRequest.abort();
+    });
+  
 }
 
 function checkTaskProgress(url) {
@@ -498,22 +530,11 @@ uploadButton.addEventListener("click", () => {
     if (isFileUploaded != '') {
         if (fileFlag == 0) {
             fileFlag = 1;
-            var width = 0;
-            var id = setInterval(frame, 50);
-
-            function frame() {
-                if (width >= 350) {
-                    clearInterval(id);
-                    uploadButton.innerHTML = `<span class="material-icons-outlined upload-button-icon"> check_circle </span> Uploaded`;
-                } else {
-                    width += 5;
-                    progressBar.style.width = width + "px";
-                }
-            }
+            
             const lang = document.querySelector("#selectLangList").value;
             const accent = document.querySelector("#selectVoiceAccentList").value;
 
-            uploadToServer('file_to_convert', fileInput.files[0], csrftoken, '/convert_file_content', lang, accent)
+            uploadToServer('file_to_convert', fileInput.files[0], csrftoken, '/convert_file_content', lang, accent, true)
         }
     } else {
         document.querySelector('.select-file-text').textContent = " Please select a file first ";
@@ -530,7 +551,7 @@ textConvertButton.addEventListener("click", () => {
         const lang = document.querySelector("#selectLangList").value;
         const accent = document.querySelector("#selectVoiceAccentList").value;
 
-        uploadToServer('text_to_convert', textToConvert, csrftoken, '/convert_input_text', lang, accent)
+        uploadToServer('text_to_convert', textToConvert, csrftoken, '/convert_input_text', lang, accent, false)
     } else {
         cannotLeaveFieldBlank.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
         const container = document.querySelector(".text").closest(".container");
@@ -602,6 +623,7 @@ if (isAdvancedUpload) {
         dragDropText.innerHTML = 'File Dropped Successfully!';
         document.querySelector(".label").innerHTML = `Drag & drop or <span class="browse-files"><input name="file_to_convert" accept=".txt,.docx,.pdf" type="file" class="default-file-input" style=""/><span class="browse-files-text" style="top: -23px;">browse file</span></span>`;
         uploadButton.innerHTML = `Upload`;
+        uploadButton.disabled = false;
 
         fileName.innerHTML = nameOfFile;
         fileSize.innerHTML = fileSizeFormat(files[0].size);
