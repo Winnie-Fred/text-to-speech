@@ -24,7 +24,7 @@ let uploadButton = document.querySelector(".upload-button");
 let textConvertButton = document.querySelector(".convert-entered-text-btn");
 let fileFlag = 0;
 
-let MAX_UPLOAD_SIZE_IN_BYTES = 10 * 1000;
+let MAX_UPLOAD_SIZE_IN_BYTES = 10 * 1000 * 1000;
 let MAX_UPLOAD_SIZE_FORMATTED = fileSizeFormat(MAX_UPLOAD_SIZE_IN_BYTES);
 
 function fileSizeFormat(bytes) {
@@ -496,8 +496,8 @@ function toggleBackButton() {
         var returnDivWrapper = document.getElementById("return-div-wrapper")
         var spanElem = document.createElement("span");
         spanElem.className = "return-div";
-        spanElem.innerHTML = `<div id="return-button"><div class="arrow-wrap"><span class="arrow-part-1"></span><span class="arrow-part-2"></span><span class="arrow-part-3"></span></div></div>`;
-        returnDivWrapper.parentNode.insertBefore(spanElem, returnDivWrapper.nextSibling);
+        spanElem.innerHTML = `<div class="button-group"><div id="return-button"><div class="arrow-wrap"><span class="arrow-part-1"></span><span class="arrow-part-2"></span><span class="arrow-part-3"></span></div></div><div class="back-button-text">Go Back</div></div>`;
+        returnDivWrapper.appendChild(spanElem);
 
         function backAnim() {
             const returnButton = document.getElementById("return-button");

@@ -6,7 +6,7 @@ import gtts
 
 
 MAX_NO_OF_CHARS = 2500
-MAX_FILE_UPLOAD_SIZE = 10 * 1024
+MAX_FILE_UPLOAD_SIZE = 10 * 1024 * 1024
 
 
 class TextToConvertForm(forms.Form):
