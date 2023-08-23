@@ -96,10 +96,10 @@ document.body.addEventListener('change', function(event) {
     if (event.target.className === 'default-file-input') {
         fileInput = event.target;
         const nameOfFile = fileInput.files[0].name
-        const nameOfFileLowercased = nameOfFile.toLowerCase();
-        if (files[0].type !== "text/plain" &&
-            files[0].type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document" &&
-            files[0].type !== "application/pdf") {
+
+        if (fileInput.files[0].type !== "text/plain" &&
+            fileInput.files[0].type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document" &&
+            fileInput.files[0].type !== "application/pdf") {
             fileFlag = 1;
             fileInput.value = '';
             cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
@@ -627,7 +627,6 @@ if (isAdvancedUpload) {
         fileInput.files = files;
 
         nameOfFile = files[0].name;
-        nameOfFileLowercased = nameOfFile.toLowerCase();
 
         if (files[0].type !== "text/plain" &&
             files[0].type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document" &&
