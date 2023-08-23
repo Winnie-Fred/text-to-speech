@@ -108,6 +108,9 @@ document.body.addEventListener('change', function(event) {
             return
         }
 
+        console.log("filetype: ", fileInput.files[0].type);
+
+
         if (fileInput.files[0].size > MAX_UPLOAD_SIZE_IN_BYTES) {
             fileFlag = 1;
             cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
@@ -244,13 +247,18 @@ function removeAllErrorIndicators() {
     });
 }
 
-function showNotification(message, type='error') {
+function removeExistingNotification() {
     const notification = document.getElementById("notification");
 
     const existingNotificationDiv = document.getElementById("notification-div");
     if (existingNotificationDiv) {
         notification.removeChild(existingNotificationDiv);
     }
+}
+
+function showNotification(message, type='error') {
+    removeExistingNotification();
+    const notification = document.getElementById("notification");
     
     const newNotificationDiv = document.createElement("div");
     newNotificationDiv.id = "notification-div";
@@ -284,6 +292,7 @@ function toggleContent() {
         mainContent.style.display = 'flex';
         const fileInputField = document.querySelector(".default-file-input");
         resetFileUploadForm(fileInputField);
+        removeExistingNotification();
     } else {
         mainContent.style.display = 'none';
         dynamicContent.style.display = 'flex';
