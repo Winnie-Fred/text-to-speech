@@ -11,9 +11,21 @@
   user-select: none;
 }
 
+.heading-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #f9f9f9;
+  height: fit-content;
+}
+
+#spaceBetweenHeadingAndContent {
+  padding-top: 170px;
+}
+
 header {
   width: 100%;
-  background-color: white;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -27,17 +39,9 @@ header {
 .pageHeading {
   width: 100%;
   display: flex;
-  background-color: white;
   flex-direction: column;
   padding-left: 60px;
   padding-right: 60px;
-  padding-top: 20px;
-  padding-top: 20px;
-}
-
-#notification {
-  margin-bottom: 20px;
-  margin-top: -30px;
 }
 
 header > * {
@@ -75,6 +79,10 @@ body > div:nth-child(2) {
 
 body > div:nth-child(2) > * {
   margin-right: 30px;
+}
+
+#notification {
+  margin-top: 35px;
 }
 
 .control {
@@ -187,15 +195,13 @@ body > div:nth-child(2) > * {
   border-radius: 10px;
   padding: 45px 45px 20px 30px;
   margin-bottom: 30px;
-  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
   display: flex;
   justify-content: flex-end;
-  position: absolute;
-  top: 30px;
-  right: 30px;
 }
 
 textarea {
@@ -296,11 +302,10 @@ textarea {
   font-size: 19px;
   font-weight: bold;
   border-radius: 8px;
-  transition: 300ms;
 }
 
 .speak div a {
-  background-color: #1565ff;
+  background-color: #fe8700;
 }
 
 @media only screen and (max-width: 769px) {
@@ -308,7 +313,17 @@ textarea {
     flex-direction: column;
     justify-content: flex-start;
     padding-left: 30px;
+    padding-right: 30px;
     align-items: flex-start;
+  }
+
+  #notification .error-span, #notification .success-span, #notification .info-span {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  #spaceBetweenHeadingAndContent {
+    padding-top: 235px;
   }
 
   header > * {
@@ -319,7 +334,6 @@ textarea {
 @media only screen and (max-width: 426px) {
   header, .pageHeading {
     padding-left: 20px;
-    margin-bottom: 20px;
   }
   header > span:nth-child(2) {
     font-size: 18px;
@@ -541,7 +555,6 @@ body {
   background-color: #ffc6c4;
   font-size: 17px;
   align-items: center;
-  margin: 5px 0;
   padding: 5px 10px 5px 30px;
   border-radius: 5px;
   color: #bb0000;
@@ -565,7 +578,11 @@ body {
 .error-span, .success-span, .info-span {
   padding: 10px;
   justify-content: space-between;
-  margin-top: 30px;
+}
+
+#notification .error-span, #notification .success-span, #notification .info-span {
+  padding-left: 60px;
+  padding-right: 60px;
 }
 
 .file-upload-error-span {
@@ -663,7 +680,6 @@ body {
 
 .error-span, .success-span, .info-span {
   width: 100%;
-  margin-top: 30px;
 }
 
 .cancel-alert-button-text {
@@ -704,10 +720,7 @@ body {
 
 .progress-bar {
   display: flex;
-  position: absolute;
-  bottom: 0;
-  left: 0%;
-  width: 0;
+  width: 100%;
   height: 5px;
   border-radius: 25px;
   background-color: #4bb543;
@@ -838,8 +851,9 @@ a.open-modal {
   background-color: #fff;
   padding: 0.8em 1.2em;
   border-radius: 5px;
-  color: #444444;
+  color: #f5f5f5;
   position: relative;
+  border-radius: 20px;
 }
 
 a.open-modal:active {
