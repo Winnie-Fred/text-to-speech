@@ -18,7 +18,7 @@ from django.http import FileResponse, HttpResponseBadRequest
 
 from celery.result import AsyncResult
 
-from .forms import TextToConvertForm, FileUploadForm, VoiceAccentForm, ChooseLanguageForm, MAX_NO_OF_CHARS
+from .forms import TextToConvertForm, FileUploadForm, VoiceAccentForm, ChooseLanguageForm, MAX_NO_OF_CHARS, get_file_type
 from .tasks import convert_text_to_speech
 
 
@@ -98,17 +98,17 @@ def convert_file_content(request):
 
         if file_upload_form.is_valid() and voice_accent_form.is_valid() and choose_lang_form.is_valid():
             uploaded_file = file_upload_form.cleaned_data.get('file_to_convert')      
+            file_type = get_file_type(uploaded_file)
 
             read_uploaded_file = uploaded_file.read()
             file_name = uploaded_file.name
             text = ''
-            
             try:
-                if file_name.endswith(".pdf"):
+                if file_type == 'PDF':
                     text = extract_text_from_pdf(read_uploaded_file)
-                elif file_name.endswith(".txt"):
+                elif file_type == 'TXT':
                     text = extract_text_from_txt(uploaded_file)
-                elif file_name.endswith(".docx"):
+                elif file_type == 'DOCX':
                     text = extract_text_from_docx(uploaded_file)
             except Exception as e:
                 context["form_errors"]["file_upload_form_errors"] = [f"An error occured with the file: {e}"]

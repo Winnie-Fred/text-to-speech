@@ -97,7 +97,9 @@ document.body.addEventListener('change', function(event) {
         fileInput = event.target;
         const nameOfFile = fileInput.files[0].name
         const nameOfFileLowercased = nameOfFile.toLowerCase();
-        if (!(nameOfFileLowercased.endsWith('.txt') || nameOfFileLowercased.endsWith('.docx') || nameOfFileLowercased.endsWith('.pdf'))) {
+        if (files[0].type !== "text/plain" &&
+            files[0].type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document" &&
+            files[0].type !== "application/pdf") {
             fileFlag = 1;
             fileInput.value = '';
             cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
@@ -506,7 +508,7 @@ function toggleBackButton() {
                 returnButton.addEventListener('transitionend', onAnimationEnd, { once: true });
             } else {
                 returnButton.classList.add('back');
-                setTimeout(backAnim, 1000);
+                setTimeout(backAnim, 500);
             }
         }
         
@@ -627,7 +629,9 @@ if (isAdvancedUpload) {
         nameOfFile = files[0].name;
         nameOfFileLowercased = nameOfFile.toLowerCase();
 
-        if (!(nameOfFileLowercased.endsWith('.txt') || nameOfFileLowercased.endsWith('.docx') || nameOfFileLowercased.endsWith('.pdf'))) {
+        if (files[0].type !== "text/plain" &&
+            files[0].type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document" &&
+            files[0].type !== "application/pdf") {
             fileFlag = 1;
             fileInput.value = '';
             cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";

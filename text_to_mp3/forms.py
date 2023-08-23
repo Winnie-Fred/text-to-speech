@@ -3,10 +3,30 @@ from django.utils.translation import gettext_lazy as _
 from django.template.defaultfilters import filesizeformat
 
 import gtts
+import magic
 
 
 MAX_NO_OF_CHARS = 2500
 MAX_FILE_UPLOAD_SIZE = 10 * 1024 * 1024
+
+
+allowed_mime_types = {
+    "text/plain":"TXT",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document":"DOCX",
+    "application/pdf":"PDF",
+}
+
+def is_file_type_allowed(file):
+    file_buffer = file.read()
+    file.seek(0)
+    file_mime_type = magic.from_buffer(file_buffer, mime=True)    
+    return file_mime_type in allowed_mime_types
+
+def get_file_type(file):
+    file_buffer = file.read()
+    file.seek(0)
+    file_mime_type = magic.from_buffer(file_buffer, mime=True)
+    return allowed_mime_types.get(file_mime_type, '')
 
 
 class TextToConvertForm(forms.Form):
@@ -21,8 +41,7 @@ class FileUploadForm(forms.Form):
         file = self.cleaned_data.get('file_to_convert')
 
         if file:
-            filename = file.name.lower()
-            if not (filename.endswith('.txt') or filename.endswith('.docx') or filename.endswith('.pdf')):
+            if not is_file_type_allowed(file):
                 raise forms.ValidationError("Please upload only .txt, .docx or .pdf files")
 
             if file.size > MAX_FILE_UPLOAD_SIZE:
