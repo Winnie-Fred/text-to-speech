@@ -16,7 +16,7 @@ allowed_mime_types = {
     "application/pdf":"PDF",
 }
 
-def is_file_type_allowed(file):
+def file_type_is_allowed(file):
     file_buffer = file.read()
     file.seek(0)
     file_mime_type = magic.from_buffer(file_buffer, mime=True)    
@@ -41,7 +41,7 @@ class FileUploadForm(forms.Form):
         file = self.cleaned_data.get('file_to_convert')
 
         if file:
-            if not is_file_type_allowed(file):
+            if not file_type_is_allowed(file):
                 raise forms.ValidationError("Please upload only .txt, .docx or .pdf files")
 
             if file.size > MAX_FILE_UPLOAD_SIZE:

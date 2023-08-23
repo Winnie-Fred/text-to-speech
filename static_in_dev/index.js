@@ -64,6 +64,62 @@ function fileSizeFormat(bytes) {
     }
 }
 
+let allowed_mime_types = {
+    "text/plain":"TXT",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document":"DOCX",
+    "application/pdf":"PDF",
+}
+
+function fileTypeIsAllowed(file, callback) {
+    let txtMime = "text/plain"
+    if (file.type === txtMime) {
+        callback(allowed_mime_types.hasOwnProperty(txtMime));
+        return;
+    }
+
+    const mimes = [
+        {
+            mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            pattern: [0x50, 0x4B, 0x03, 0x04],
+            mask: [0xFF, 0xFF, 0xFF, 0xFF],
+        },
+        {
+            mime: 'application/pdf',
+            pattern: [0x25, 0x50, 0x44, 0x46],
+            mask: [0xFF, 0xFF, 0xFF, 0xFF],
+        }
+    ];
+
+    function check(bytes, mime) {
+        for (var i = 0, l = mime.mask.length; i < l; ++i) {
+            if ((bytes[i] & mime.mask[i]) - mime.pattern[i] !== 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    const blob = file.slice(0, 4); // read the first 4 bytes of the file
+
+    const reader = new FileReader();
+
+    reader.onloadend = function(e) {
+        if (e.target.readyState === FileReader.DONE) {
+            const bytes = new Uint8Array(e.target.result);
+
+            for (var i = 0, l = mimes.length; i < l; ++i) {
+                if (check(bytes, mimes[i])) {
+                    callback(allowed_mime_types.hasOwnProperty(mimes[i].mime));
+                    return;
+                }
+            }
+
+            callback(false);
+        }
+    };
+    reader.readAsArrayBuffer(blob);
+}
+
 
 function resetFileUploadForm(fileInputField) {
     if (fileInputField) {
@@ -97,19 +153,16 @@ document.body.addEventListener('change', function(event) {
         fileInput = event.target;
         const nameOfFile = fileInput.files[0].name
 
-        if (fileInput.files[0].type !== "text/plain" &&
-            fileInput.files[0].type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document" &&
-            fileInput.files[0].type !== "application/pdf") {
-            fileFlag = 1;
-            fileInput.value = '';
-            cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
-            document.querySelector('.select-file-text').textContent = "Please upload only .txt, .docx or .pdf files";
-            showNotification(CORRECT_FORM_ERROR_MESSAGE);
-            return
-        }
-
-        console.log("filetype: ", fileInput.files[0].type);
-
+        fileTypeIsAllowed(fileInput.files[0], function(isAllowed) {
+            if (!isAllowed) {
+                fileFlag = 1;
+                fileInput.value = '';
+                cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
+                document.querySelector('.select-file-text').textContent = "Please upload only .txt, .docx or .pdf files";
+                showNotification(CORRECT_FORM_ERROR_MESSAGE);
+                return;
+            }
+        });
 
         if (fileInput.files[0].size > MAX_UPLOAD_SIZE_IN_BYTES) {
             fileFlag = 1;
@@ -637,16 +690,16 @@ if (isAdvancedUpload) {
 
         nameOfFile = files[0].name;
 
-        if (files[0].type !== "text/plain" &&
-            files[0].type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document" &&
-            files[0].type !== "application/pdf") {
-            fileFlag = 1;
-            fileInput.value = '';
-            cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
-            document.querySelector('.select-file-text').textContent = "Please upload only .txt, .docx or .pdf files";
-            showNotification(CORRECT_FORM_ERROR_MESSAGE);
-            return
-        }
+        fileTypeIsAllowed(fileInput.files[0], function(isAllowed) {
+            if (!isAllowed) {
+                fileFlag = 1;
+                fileInput.value = '';
+                cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
+                document.querySelector('.select-file-text').textContent = "Please upload only .txt, .docx or .pdf files";
+                showNotification(CORRECT_FORM_ERROR_MESSAGE);
+                return;
+            }
+        });
 
         if (files[0].size > MAX_UPLOAD_SIZE_IN_BYTES) {
             fileFlag = 1;
