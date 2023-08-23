@@ -318,8 +318,8 @@ textarea {
   }
 
   #notification .error-span, #notification .success-span, #notification .info-span {
-    padding-left: 10px !important;
-    padding-right: 10px !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
   }
 
   #spaceBetweenHeadingAndContent {
@@ -719,7 +719,7 @@ body {
 }
 
 .progress-bar {
-  display: flex;
+  display: none;
   width: 100%;
   height: 5px;
   border-radius: 25px;
@@ -1752,7 +1752,7 @@ margin: 20px 0px;
   margin-top: 10px;
 } 
 
-.abort-button {
+.abort-button, .abort-text-upload-btn {
   font-family: "Montserrat";
   background-color: transparent;
   color: #d90429;
@@ -1766,9 +1766,16 @@ margin: 20px 0px;
   transition: background-color 0.3s, color 0.3s;
 }
 
-.abort-button:hover {
+.abort-button:hover, abort-text-upload-btn:hover {
   background-color: #d90429;
   color: #fff;
+}
+
+.abort-text-upload-btn {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  margin-top: 0;
 }
 
 /* Conversion Progress */

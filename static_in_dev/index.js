@@ -22,6 +22,7 @@ let progressBar = document.querySelector(".progress-bar");
 let removeFileButton = document.querySelector(".remove-file-icon");
 let uploadButton = document.querySelector(".upload-button");
 let textConvertButton = document.querySelector(".convert-entered-text-btn");
+let textToConvertDiv = document.querySelector('.convert-entered-text-btn-div');
 let fileFlag = 0;
 
 let MAX_UPLOAD_SIZE_IN_BYTES = 10 * 1000 * 1000;
@@ -346,6 +347,10 @@ function toggleContent() {
         const fileInputField = document.querySelector(".default-file-input");
         resetFileUploadForm(fileInputField);
         removeExistingNotification();
+        textToConvertDiv.innerHTML = '<button class="convert-entered-text-btn" name="convert_entered_text" type="button" id="speak">Convert</button>';
+        document.querySelector('.convert-entered-text-btn').addEventListener("click", () => {
+            onTextConvertClick();
+        });
     } else {
         mainContent.style.display = 'none';
         dynamicContent.style.display = 'flex';
@@ -353,7 +358,7 @@ function toggleContent() {
     toggleBackButton();
 }
 
-function uploadToServer(elementName, objectToUpload, csrftoken, url, lang, accent, trackProgress) {
+function uploadToServer(elementName, objectToUpload, csrftoken, url, lang, accent) {
     let formData = new FormData();
     formData.append(elementName, objectToUpload);
     formData.append('select_lang', lang);
@@ -374,54 +379,60 @@ function uploadToServer(elementName, objectToUpload, csrftoken, url, lang, accen
         },
         xhr: function () {
             const xhr = new window.XMLHttpRequest();
-            if (trackProgress) {
-                xhr.upload.addEventListener('progress', e => {
-                    if (e.lengthComputable) {
-                        const uploadProgress = (e.loaded/e.total) * 100;
-                        progressBar.style.width = `${uploadProgress}%`;
-                        if (e.loaded === e.total) {
-                            uploadButton.innerHTML = `<span class="material-icons-outlined upload-button-icon"> check_circle </span> Uploaded`;
-                        }
-
+            progressBar.style.display = 'flex';
+            xhr.upload.addEventListener('progress', e => {
+                if (e.lengthComputable) {
+                    const uploadProgress = (e.loaded/e.total) * 100;
+                    progressBar.style.width = `${uploadProgress}%`;
+                    if (e.loaded === e.total) {
+                        uploadButton.innerHTML = `<span class="material-icons-outlined upload-button-icon"> check_circle </span> Uploaded`;
                     }
-                });
+
+                }
+            });
+            if (elementName === 'file_to_convert') {
                 uploadButton.disabled = true;
+            } else if (elementName === 'text_to_convert') {
+                textToConvertDiv.innerHTML = '<button class="abort-text-upload-btn">Abort</button>';
             }
             return xhr;
         },
         success: function(data) {
-        if (!data.context.errors) {
-            // Perform actions with the response data from the view
-            $('.dynamic-content-wrapper').html(data.html);
-            toggleContent();
-            const abortTaskUrl = data.context.abort_task_url;
-            $('.abort-button').on('click', function() {
-                abortTask(abortTaskUrl);
-            });
-            $('.return-div').addClass('abort-task').attr('data-abort-task-url', abortTaskUrl);
-            if (data.context.extra_info) {
-                showNotification(data.context.extra_info, 'info');
+            progressBar.style.display = 'none';
+
+            if (!data.context.errors) {
+                $('.dynamic-content-wrapper').html(data.html);
+                toggleContent();
+                const abortTaskUrl = data.context.abort_task_url;
+                $('.abort-button').on('click', function() {
+                    abortTask(abortTaskUrl);
+                });
+                $('.return-div').addClass('abort-task').attr('data-abort-task-url', abortTaskUrl);
+                if (data.context.extra_info) {
+                    showNotification(data.context.extra_info, 'info');
+                }
+                checkTaskProgress(data.context.get_progress_url);
+            } else {
+                showNotification(CORRECT_FORM_ERROR_MESSAGE);
+        
+                // Append errors to form fields
+                const formErrors = data.context.form_errors;
+                const formFields = ['voice_accent_form', 'choose_lang_form'];
+        
+                if ('file_upload_form_errors' in data.context.form_errors) {
+                    formFields.push('file_upload_form');
+                } else if ('text_input_form_errors' in data.context.form_errors) {
+                    formFields.push('text_input_form');
+                }
+        
+                formFields.forEach(function(fieldName) {
+                    appendErrorSpan(fieldName, formErrors);
+                });
             }
-            checkTaskProgress(data.context.get_progress_url);
-        } else {
-            showNotification(CORRECT_FORM_ERROR_MESSAGE);
-    
-            // Append errors to form fields
-            const formErrors = data.context.form_errors;
-            const formFields = ['voice_accent_form', 'choose_lang_form'];
-    
-            if ('file_upload_form_errors' in data.context.form_errors) {
-                formFields.push('file_upload_form');
-            } else if ('text_input_form_errors' in data.context.form_errors) {
-                formFields.push('text_input_form');
-            }
-    
-            formFields.forEach(function(fieldName) {
-                appendErrorSpan(fieldName, formErrors);
-            });
-        }
         },
         error: function(xhr, status, error) {
+            progressBar.style.display = 'none';
+
             if (status === 'abort') {
                 return
             }
@@ -439,6 +450,13 @@ function uploadToServer(elementName, objectToUpload, csrftoken, url, lang, accen
     });
     removeFileButton.addEventListener("click", () => {
         uploadToServerRequest.abort();
+    });
+    document.querySelector('.abort-text-upload-btn').addEventListener("click", () => {
+        uploadToServerRequest.abort();
+        textToConvertDiv.innerHTML = '<button class="convert-entered-text-btn" name="convert_entered_text" type="button" id="speak">Convert</button>';
+        document.querySelector('.convert-entered-text-btn').addEventListener("click", () => {
+            onTextConvertClick();
+        });
     });
   
 }
@@ -570,7 +588,7 @@ function toggleBackButton() {
                 returnButton.addEventListener('transitionend', onAnimationEnd, { once: true });
             } else {
                 returnButton.classList.add('back');
-                setTimeout(backAnim, 500);
+                setTimeout(backAnim, 300);
             }
         }
         
@@ -624,7 +642,7 @@ uploadButton.addEventListener("click", () => {
             const lang = document.querySelector("#selectLangList").value;
             const accent = document.querySelector("#selectVoiceAccentList").value;
 
-            uploadToServer('file_to_convert', fileInput.files[0], csrftoken, '/convert_file_content', lang, accent, true)
+            uploadToServer('file_to_convert', fileInput.files[0], csrftoken, '/convert_file_content', lang, accent)
         }
     } else {
         document.querySelector('.select-file-text').textContent = " Please select a file first ";
@@ -634,23 +652,25 @@ uploadButton.addEventListener("click", () => {
 });
 
 textConvertButton.addEventListener("click", () => {
+    onTextConvertClick();
+});
+
+function onTextConvertClick () {
     removeAllErrorIndicators();
     let textToConvert = document.querySelector(".text").value.trim();
-
+    
     if (textToConvert.length !== 0) {
         const lang = document.querySelector("#selectLangList").value;
         const accent = document.querySelector("#selectVoiceAccentList").value;
-
-        uploadToServer('text_to_convert', textToConvert, csrftoken, '/convert_input_text', lang, accent, false)
+    
+        uploadToServer('text_to_convert', textToConvert, csrftoken, '/convert_input_text', lang, accent)
     } else {
         cannotLeaveFieldBlank.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
         const container = document.querySelector(".text").closest(".container");
         container.classList.add("error-border");
         showNotification(CORRECT_FORM_ERROR_MESSAGE);
     }
-
-});
-
+}
 
 cancelAlertButtonForFileInput.addEventListener("click", () => {
     cannotUploadMessage.style.cssText = "display: none;";
