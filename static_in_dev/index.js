@@ -390,7 +390,7 @@ function uploadToServer(elementName, objectToUpload, csrftoken, url, lang, accen
                     const uploadProgress = (e.loaded/e.total) * 100;
                     progressBar.style.width = `${uploadProgress}%`;
                     if (elementName === 'file_to_convert' && e.loaded === e.total) {
-                        uploadButton.innerHTML = `<span class="material-icons-outlined upload-button-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#fff"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"/></svg></span> Uploaded`;
+                        uploadButton.innerHTML = `<span class="material-icons-outlined upload-button-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none" /><circle cx="12" cy="12" r="10" fill="#fe8700" /><path d="M17.59 6.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z" fill="#ffffff" /></svg></span> Uploaded`;
                     }
                 }
             });
