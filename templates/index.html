@@ -77,33 +77,5 @@
 
   <!--Drag and drop files-->
 </div>
-<div class="config">
-  <fieldset class="settings-fieldset">
-    <legend class="settings-legend">Settings</legend>
-    <div id="selectWrapper" class="settings _segment">
-      <div class="settings-lang _segment_form_1">
-        <div class="choose_lang_form">
-          <label style="color: #000000; font-size: 12px;" for="selectLangList">Choose the language the text is in</label>        
-          <select id="selectLangList" name="{{ choose_lang_form.select_lang.name }}">                    
-            {% for value, label in choose_lang_form.select_lang.field.choices %}
-            <option value="{{ value }}">{{ label }}</option>
-            {% endfor %}
-          </select>  
-        </div>
-      </div>
-      <div class="alternative-text-wrapper"></div>
-      <div class="settings-accent _segment_form_2">
-        <div class="voice_accent_form">
-          <label style="color: #000000; font-size: 12px;" for="selectVoiceAccentList">Choose an accent to read the text with</label>        
-          <select id="selectVoiceAccentList">          
-            {% for value, label in voice_accent_form.select_voice_accent.field.choices %}
-              <option value="{{ value }}">{{ label }}</option>
-            {% endfor %}
-          </select>  
-        </div>
-      </div>
-    </div>
-  </fieldset>
-</div>
 
 {% endblock main_content %}

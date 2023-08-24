@@ -636,14 +636,25 @@ body {
 
 
 @media only screen and (max-width: 769px) {
-  .dynamic-content-wrapper, .main-content-wrapper {
+  .main-content-wrapper {
     padding: 0px 0px;
+  }
+  .dynamic-content-wrapper {
+    padding: 0px 60px;
+  }
+  .config {
+    padding: 22px 18px !important;
   }
   ._segment_form_1{
     padding: 0px 20px;
   }
-  .detail{
+  .detail {
     padding-left: 30px !important;
+  }
+  .settings-lang,
+  .settings-accent {
+    flex: 100%; /* Allow sections to take full width on smaller screens */
+    min-width: auto;
   }
 }
 
@@ -1599,26 +1610,27 @@ audio {
 .searchSelect3_Input {
   width: 250px;
   height: 32px;
-  background: #fcfcfc;
+  background: #aaa;
   border: 1px solid #aaa;
   border-radius: 5px;
   text-indent: 10px;
   padding-right: 20px;
   width: 200px;
+  margin-top: 13px;
   
   /*font: 200 16px/1.5 Helvetica, Verdana, sans-serif;*/
 }
 
 .searchSelect3_Caret_Down {
   position: absolute;
-  top: 5px;
+  top: 16px;
   left: 180px;
   cursor: pointer;
 }
 
 .searchSelect3_Times {
   position: absolute;
-  top: 5px;
+  top: 16px;
   left: 210px;
   cursor: pointer;
   display: none;
@@ -1638,14 +1650,14 @@ audio {
 
 .searchSelect3_List li {
   list-style-type: none;
-  background: #ffffff;
+  background: #aaa;
   /*font: 200 16px/1.5 Helvetica, Verdana, sans-serif;*/
   border-bottom: 1px solid #ccc;
 }
 
 .searchSelect3_List li:hover {
   cursor: pointer;
-  background: #fe8700;
+  background: #b8b4b4;
   color: #ffffff;
 }
 
@@ -1688,34 +1700,47 @@ margin: 20px 0px;
 
 /* Settings/Config section */
 
+.config-wrapper-row {
+  width: 100%;
+  padding-top: 60px;
+  margin: 0;
+}
+
+.config-wrapper {
+  width: 100%;
+  /* background-color: #ffffcc; */
+  background: linear-gradient(#acb6c7, #28333f);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 40px 0;
+}
+
 .config {
-  background-color: #ffffff;
-  margin-bottom: 20px;
+  background: rgba(136, 107, 107, 0.5);
+  box-shadow: 0 15px 25px rgba(0,0,0,.6);
+  border-radius: 10px;
+  padding: 48px 50px;
 }
 
-.settings {
-  height: 20%;
+.settings-text {
+  margin: 0 0 30px;
+  padding: 0;
+  color: #0c0b0b;
+  text-align: center;
 }
 
-.settings-lang, .settings-accent {
-  height: 20%
+.settings-lang,
+.settings-accent {
+  margin-bottom: 30px;
 }
 
 .settings-accent {
   background: none;
 }
 
-.settings-fieldset {
-  border: 1px solid grey;
-  border-radius: 10px;
-  padding: 10px;
-}
 
-.settings-legend {
-  margin-left: 2%;
-  font-weight: 700;
-  padding: 5px 10px;
-}
 /* Settings section */
 
 /* Conversion Progress */

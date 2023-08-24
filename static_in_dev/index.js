@@ -338,16 +338,19 @@ function showNotification(message, type='error') {
 function toggleContent() {
     const mainContent = document.querySelector('.main-content-wrapper');
     const dynamicContent = document.querySelector('.dynamic-content-wrapper');
+    const configWrapper = document.querySelector('.config-wrapper');
 
     if (mainContent.style.display === 'none') {
         dynamicContent.innerHTML = '';
         dynamicContent.style.display = 'none';
         mainContent.style.display = 'flex';
+        configWrapper.style.display = 'flex';
         const fileInputField = document.querySelector(".default-file-input");
         resetFileUploadForm(fileInputField);
         removeExistingNotification();
     } else {
         mainContent.style.display = 'none';
+        configWrapper.style.display = 'none';
         dynamicContent.style.display = 'flex';
     }
     toggleBackButton();
