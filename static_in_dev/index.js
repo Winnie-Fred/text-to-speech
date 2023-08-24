@@ -4,7 +4,13 @@ var isAdvancedUpload = function() {
     return (('draggable' in div) || ('ondragstart' in div && 'ondrop' in div)) && 'FormData' in window && 'FileReader' in window;
 }();
 
-var CORRECT_FORM_ERROR_MESSAGE = "Please correct the errors in the form";
+const CORRECT_FORM_ERROR_MESSAGE = "Please correct the errors in the form";
+const errorIcon = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#bb0000"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>'
+const successIcon = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"/></svg>'
+const infoIcon = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>'
+const cancelIcon = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#bb0000"><path d="M0 0h24v24H0V0z" fill="none" opacity=".87"/><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.59-13L12 10.59 8.41 7 7 8.41 10.59 12 7 15.59 8.41 17 12 13.41 15.59 17 17 15.59 13.41 12 17 8.41z"/></svg>'
+const uploadDropIconText = '<svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="50px" viewBox="0 0 24 24" width="50px" fill="#FFFFFF"><g><rect fill="none" height="50" width="50"/></g><g><path d="M18,15v3H6v-3H4v3c0,1.1,0.9,2,2,2h12c1.1,0,2-0.9,2-2v-3H18z M7,9l1.41,1.41L11,7.83V16h2V7.83l2.59,2.58L17,9l-5-5L7,9z"/></g></svg>'
+const DropSuccessIconText = '<svg xmlns="http://www.w3.org/2000/svg" height="50px" viewBox="0 0 24 24" width="50px" fill="#fff"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"/></svg>'
 
 let draggableFileArea = document.querySelector(".drag-file-area");
 let browseFileText = document.querySelector(".browse-files");
@@ -126,7 +132,7 @@ function resetFileUploadForm(fileInputField) {
         fileInputField.value = '';
         fileInput = fileInputField;
         uploadedFile.style.cssText = "display: none;";
-        uploadIcon.innerHTML = 'file_upload';
+        uploadIcon.innerHTML = uploadDropIconText;
         dragDropText.innerHTML = 'Drag & drop any file here';
         document.querySelector(".label").innerHTML = `or <span class="browse-files"><input name="file_to_convert" accept=".txt,.docx,.pdf" type="file" class="default-file-input"/><span class="browse-files-text"> browse file </span><span>from device</span></span>`;
         uploadButton.innerHTML = `Upload`;
@@ -141,7 +147,7 @@ document.addEventListener("click", function(e) {
         target.value = '';
         fileInput = target;
         uploadedFile.style.cssText = "display: none;";
-        uploadIcon.innerHTML = 'file_upload';
+        uploadIcon.innerHTML = uploadDropIconText;
         dragDropText.innerHTML = 'Drag & drop any file here';
         uploadButton.innerHTML = `Upload`;
         uploadButton.disabled = false;
@@ -173,7 +179,7 @@ document.body.addEventListener('change', function(event) {
             return
         }
 
-        uploadIcon.innerHTML = 'check_circle';
+        uploadIcon.innerHTML = DropSuccessIconText;
         dragDropText.innerHTML = 'File Selected Successfully!';
         document.querySelector(".label").innerHTML = `Drag & drop or <span class="browse-files"><input type="file" class="default-file-input" accept=".txt,.docx,.pdf" name="file_to_convert" style=""/><span class="browse-files-text">browse file</span></span>`;
         uploadButton.innerHTML = `Upload`;
@@ -223,10 +229,10 @@ function appendErrorSpan(fieldName, formErrors) {
         fieldErrors.forEach((error) => {
             const errorContent = `
         <span class="error-span-main-wrap">
-            <span class="material-icons-outlined">error</span>
+            <span class="material-icons-outlined">${errorIcon}</span>
             <p>${error}</p>
         </span>
-        <span class="material-icons-outlined cancel-alert-button-remove">cancel</span>`;
+        <span class="material-icons-outlined cancel-alert-button-remove">${cancelIcon}</span>`;
             errorSpan.innerHTML += errorContent;
         });
 
@@ -322,16 +328,18 @@ function showNotification(message, type='error') {
     spanElem.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
     spanElem.className = className;
     
-    const icon = type === 'error' ? 'error' : type === 'info' ? 'info' : 'check_circle';
+    const icon = type === 'error' ? errorIcon : type === 'info' ? infoIcon : successIcon;
+    const iconColor = type === 'error' ? "#bb0000" : type === 'info' ? '#276efa' : "#45bb00";
     const spanContent = `<span class="error-span-main-wrap">
     <span class="material-icons-outlined">${icon}</span>
     <p>${message}</p>
     </span>
-    <span class="material-icons-outlined cancel-alert-button-remove">cancel</span>`;
-    
+    <span class="material-icons-outlined cancel-alert-button-remove"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="${iconColor}"><path d="M0 0h24v24H0V0z" fill="none" opacity=".87"/><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.59-13L12 10.59 8.41 7 7 8.41 10.59 12 7 15.59 8.41 17 12 13.41 15.59 17 17 15.59 13.41 12 17 8.41z"/></svg></span>`;
     spanElem.innerHTML = spanContent;
     newNotificationDiv.appendChild(spanElem);
     notification.appendChild(newNotificationDiv);
+    const svgSelector = document.querySelector('#notification-div svg'); // Get first svg
+    svgSelector.style.fill = iconColor;
 }
 
 
@@ -383,7 +391,7 @@ function uploadToServer(elementName, objectToUpload, csrftoken, url, lang, accen
                     const uploadProgress = (e.loaded/e.total) * 100;
                     progressBar.style.width = `${uploadProgress}%`;
                     if (elementName === 'file_to_convert' && e.loaded === e.total) {
-                        uploadButton.innerHTML = `<span class="material-icons-outlined upload-button-icon"> check_circle </span> Uploaded`;
+                        uploadButton.innerHTML = `<span class="material-icons-outlined upload-button-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#fff"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"/></svg></span> Uploaded`;
                     }
                 }
             });
@@ -719,7 +727,7 @@ if (isAdvancedUpload) {
             return
         }
 
-        uploadIcon.innerHTML = 'check_circle';
+        uploadIcon.innerHTML = DropSuccessIconText;
         dragDropText.innerHTML = 'File Dropped Successfully!';
         document.querySelector(".label").innerHTML = `Drag & drop or <span class="browse-files"><input name="file_to_convert" accept=".txt,.docx,.pdf" type="file" class="default-file-input" style=""/><span class="browse-files-text" style="top: -23px;">browse file</span></span>`;
         uploadButton.innerHTML = `Upload`;
@@ -914,8 +922,9 @@ Required: FOUNDATION
         $(selectorInput).val(opts.defaultText);
         $(selectorID).val(opts.defaultValue);
 
-        var buildELement = $('<div class="searchSelect3" id="' + idDiv + '" style="position:relative;"><input class="searchSelect3_Input" placeholder="' + opts.placeholder + '" value="' + opts.defaultText + '" id="' + idInput + '"><span class="material-symbols-outlined searchSelect3_Times" id="' + idClose + '">delete</span><span class="material-symbols-outlined searchSelect3_Caret_Down" id="' + idDown + '">arrow_drop_down</span></div>');
-
+        var buildELement = $('<div class="searchSelect3" id="' + idDiv + '" style="position:relative;"><input class="searchSelect3_Input" placeholder="' + opts.placeholder + '" value="' + opts.defaultText + '" id="' + idInput + '"><span class="material-symbols-outlined searchSelect3_Times" id="' + idClose + '"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#302f2f"><path d="M0 0h24v24H0z" fill="none"/><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></span><span class="material-symbols-outlined searchSelect3_Caret_Down" id="' + idDown + '"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M480-360 280-559h400L480-360Z"/></svg></span></div>');
+        
+        
         if ($(selectorDiv).length > 0) {
             $(selectorDiv).remove();
         }

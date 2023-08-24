@@ -195,7 +195,7 @@ body > div:nth-child(2) > * {
   height: 400px;
   border: 1px solid grey;
   border-radius: 10px;
-  padding: 45px 45px 20px 30px;
+  padding: 15px;
   margin-bottom: 30px;
   display: flex;
   flex-direction: column;
@@ -204,6 +204,10 @@ body > div:nth-child(2) > * {
 .header {
   display: flex;
   justify-content: flex-end;
+}
+
+.clear {
+  cursor: pointer;
 }
 
 textarea {
@@ -420,7 +424,7 @@ textarea {
   }
 
   .container {
-    padding: 20px 30px 20px 30px;
+    padding: 15px;
     height: 270px;
   }
 
