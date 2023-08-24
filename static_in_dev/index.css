@@ -11,12 +11,16 @@
   user-select: none;
 }
 
+.bg-colored-heading-wrapper {
+  background-color: #f9f9f9;
+  height: 120px;
+}
+
 .heading-wrapper {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  background-color: #f9f9f9;
   height: fit-content;
 }
 
@@ -38,10 +42,12 @@ header {
 
 .pageHeading {
   width: 100%;
-  display: flex;
+  display: none;
   flex-direction: column;
   padding-left: 60px;
   padding-right: 60px;
+  background-color: #fff;
+  padding-top: 20px;
 }
 
 header > * {
@@ -79,10 +85,6 @@ body > div:nth-child(2) {
 
 body > div:nth-child(2) > * {
   margin-right: 30px;
-}
-
-#notification {
-  margin-top: 35px;
 }
 
 .control {
@@ -317,6 +319,10 @@ textarea {
     align-items: flex-start;
   }
 
+  .pageHeading {
+    padding-top: 20px;
+  }
+
   #notification .error-span, #notification .success-span, #notification .info-span {
     padding-left: 15px !important;
     padding-right: 15px !important;
@@ -324,6 +330,10 @@ textarea {
 
   #spaceBetweenHeadingAndContent {
     padding-top: 235px;
+  }
+
+  .bg-colored-heading-wrapper {
+    height: 180px;
   }
 
   header > * {
@@ -334,6 +344,9 @@ textarea {
 @media only screen and (max-width: 426px) {
   header, .pageHeading {
     padding-left: 20px;
+  }
+  .pageHeading {
+    padding-top: 20px;
   }
   header > span:nth-child(2) {
     font-size: 18px;
@@ -1351,7 +1364,7 @@ audio {
   display: flex;
   flex-flow: column;
   align-items: center;
-  margin-top: 80px;
+  margin-top: 180px;
 }
 
 .check-container {
@@ -1752,7 +1765,7 @@ margin: 20px 0px;
   margin-top: 10px;
 } 
 
-.abort-button, .abort-text-upload-btn {
+.abort-button {
   font-family: "Montserrat";
   background-color: transparent;
   color: #d90429;
@@ -1766,16 +1779,9 @@ margin: 20px 0px;
   transition: background-color 0.3s, color 0.3s;
 }
 
-.abort-button:hover, abort-text-upload-btn:hover {
+.abort-button:hover {
   background-color: #d90429;
   color: #fff;
-}
-
-.abort-text-upload-btn {
-  display: flex;
-  align-items: center;
-  font-size: 18px;
-  margin-top: 0;
 }
 
 /* Conversion Progress */

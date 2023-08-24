@@ -21,8 +21,7 @@ let fileSize = document.querySelector(".file-size");
 let progressBar = document.querySelector(".progress-bar");
 let removeFileButton = document.querySelector(".remove-file-icon");
 let uploadButton = document.querySelector(".upload-button");
-let textConvertButton = document.querySelector(".convert-entered-text-btn");
-let textToConvertDiv = document.querySelector('.convert-entered-text-btn-div');
+let textToConvertBtn = document.querySelector('.convert-entered-text-btn');
 let fileFlag = 0;
 
 let MAX_UPLOAD_SIZE_IN_BYTES = 10 * 1000 * 1000;
@@ -337,9 +336,9 @@ function showNotification(message, type='error') {
 
 
 function toggleContent() {
-    var mainContent = document.querySelector('.main-content-wrapper');
-    var dynamicContent = document.querySelector('.dynamic-content-wrapper');
-    
+    const mainContent = document.querySelector('.main-content-wrapper');
+    const dynamicContent = document.querySelector('.dynamic-content-wrapper');
+
     if (mainContent.style.display === 'none') {
         dynamicContent.innerHTML = '';
         dynamicContent.style.display = 'none';
@@ -347,10 +346,6 @@ function toggleContent() {
         const fileInputField = document.querySelector(".default-file-input");
         resetFileUploadForm(fileInputField);
         removeExistingNotification();
-        textToConvertDiv.innerHTML = '<button class="convert-entered-text-btn" name="convert_entered_text" type="button" id="speak">Convert</button>';
-        document.querySelector('.convert-entered-text-btn').addEventListener("click", () => {
-            onTextConvertClick();
-        });
     } else {
         mainContent.style.display = 'none';
         dynamicContent.style.display = 'flex';
@@ -384,16 +379,13 @@ function uploadToServer(elementName, objectToUpload, csrftoken, url, lang, accen
                 if (e.lengthComputable) {
                     const uploadProgress = (e.loaded/e.total) * 100;
                     progressBar.style.width = `${uploadProgress}%`;
-                    if (e.loaded === e.total) {
+                    if (elementName === 'file_to_convert' && e.loaded === e.total) {
                         uploadButton.innerHTML = `<span class="material-icons-outlined upload-button-icon"> check_circle </span> Uploaded`;
                     }
-
                 }
             });
             if (elementName === 'file_to_convert') {
                 uploadButton.disabled = true;
-            } else if (elementName === 'text_to_convert') {
-                textToConvertDiv.innerHTML = '<button class="abort-text-upload-btn">Abort</button>';
             }
             return xhr;
         },
@@ -451,14 +443,6 @@ function uploadToServer(elementName, objectToUpload, csrftoken, url, lang, accen
     removeFileButton.addEventListener("click", () => {
         uploadToServerRequest.abort();
     });
-    document.querySelector('.abort-text-upload-btn').addEventListener("click", () => {
-        uploadToServerRequest.abort();
-        textToConvertDiv.innerHTML = '<button class="convert-entered-text-btn" name="convert_entered_text" type="button" id="speak">Convert</button>';
-        document.querySelector('.convert-entered-text-btn').addEventListener("click", () => {
-            onTextConvertClick();
-        });
-    });
-  
 }
 
 function checkTaskProgress(url) {
@@ -572,9 +556,12 @@ function startErrorAnimation() {
 
 function toggleBackButton() {
     const backButton = document.querySelector('.return-div');
+    const pageHeading = document.querySelector('.pageHeading');
     if (backButton) {
+        pageHeading.style.display = 'none';
         backButton.remove();
     } else {
+        pageHeading.style.display = 'flex';
         var returnDivWrapper = document.getElementById("return-div-wrapper")
         var spanElem = document.createElement("span");
         spanElem.className = "return-div";
@@ -651,11 +638,8 @@ uploadButton.addEventListener("click", () => {
     }
 });
 
-textConvertButton.addEventListener("click", () => {
-    onTextConvertClick();
-});
-
-function onTextConvertClick () {
+textToConvertBtn.addEventListener("click", function (e) {
+    
     removeAllErrorIndicators();
     let textToConvert = document.querySelector(".text").value.trim();
     
@@ -670,7 +654,9 @@ function onTextConvertClick () {
         container.classList.add("error-border");
         showNotification(CORRECT_FORM_ERROR_MESSAGE);
     }
-}
+    
+});
+
 
 cancelAlertButtonForFileInput.addEventListener("click", () => {
     cannotUploadMessage.style.cssText = "display: none;";
