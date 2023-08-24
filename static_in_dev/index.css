@@ -720,7 +720,6 @@ body {
   background-color: #4b1d73;
   transition: all 1s;
   width: 100%;
-  position: relative;
   display: none;
   flex-direction: row;
   justify-content: space-between;
@@ -1647,7 +1646,7 @@ audio {
   padding: 0;
   overflow: auto;
   overflow-x: hidden;
-  height: 20em;
+  height: 10em;
   width: 250px;
   position: absolute;
 }
@@ -1708,6 +1707,7 @@ margin: 20px 0px;
   width: 100%;
   padding-top: 60px;
   margin: 0;
+  box-sizing: border-box;
 }
 
 .config-wrapper {
@@ -1718,7 +1718,7 @@ margin: 20px 0px;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  padding: 40px 0;
+  padding: 115px 0 115px 0;
 }
 
 .config {

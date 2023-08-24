@@ -154,47 +154,46 @@ document.addEventListener("click", function(e) {
     }
 });
 
+function handleFileSelection(file, nameOfFile, successActionText) {
+    fileTypeIsAllowed(file, function(isAllowed) {
+      if (!isAllowed) {
+        fileFlag = 1;
+        fileInput.value = '';
+        cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
+        document.querySelector('.select-file-text').textContent = "Please upload only .txt, .docx or .pdf files";
+        showNotification(CORRECT_FORM_ERROR_MESSAGE);
+      } else if (file.size > MAX_UPLOAD_SIZE_IN_BYTES) {
+        fileFlag = 1;
+        cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
+        document.querySelector('.select-file-text').textContent = "Please keep file size under " + MAX_UPLOAD_SIZE_FORMATTED + ". Current file size: " + fileSizeFormat(file.size);
+        showNotification(CORRECT_FORM_ERROR_MESSAGE);
+        fileInput.value = '';
+      } else {
+        uploadIcon.innerHTML = DropSuccessIconText;
+        dragDropText.innerHTML = `File ${successActionText} Successfully!`;
+        document.querySelector(".label").innerHTML = `Drag & drop or <span class="browse-files"><input type="file" class="default-file-input" accept=".txt,.docx,.pdf" name="file_to_convert" style=""/><span class="browse-files-text">browse file</span></span>`;
+        uploadButton.innerHTML = `Upload`;
+        uploadButton.disabled = false;
+        fileName.innerHTML = nameOfFile;
+        fileSize.innerHTML = fileSizeFormat(file.size);
+        uploadedFile.style.cssText = "display: flex;";
+        progressBar.style.width = 0;
+        fileFlag = 0;
+      }
+    });
+}
+
 document.body.addEventListener('change', function(event) {
     if (event.target.className === 'default-file-input') {
         fileInput = event.target;
         const nameOfFile = fileInput.files[0].name
 
-        fileTypeIsAllowed(fileInput.files[0], function(isAllowed) {
-            if (!isAllowed) {
-                fileFlag = 1;
-                fileInput.value = '';
-                cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
-                document.querySelector('.select-file-text').textContent = "Please upload only .txt, .docx or .pdf files";
-                showNotification(CORRECT_FORM_ERROR_MESSAGE);
-                return;
-            }
-        });
-
-        if (fileInput.files[0].size > MAX_UPLOAD_SIZE_IN_BYTES) {
-            fileFlag = 1;
-            cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
-            document.querySelector('.select-file-text').textContent = "Please keep file size under " + MAX_UPLOAD_SIZE_FORMATTED + ". Current file size: " + fileSizeFormat(fileInput.files[0].size);
-            showNotification(CORRECT_FORM_ERROR_MESSAGE);
-            fileInput.value = '';
-            return
-        }
-
-        uploadIcon.innerHTML = DropSuccessIconText;
-        dragDropText.innerHTML = 'File Selected Successfully!';
-        document.querySelector(".label").innerHTML = `Drag & drop or <span class="browse-files"><input type="file" class="default-file-input" accept=".txt,.docx,.pdf" name="file_to_convert" style=""/><span class="browse-files-text">browse file</span></span>`;
-        uploadButton.innerHTML = `Upload`;
-        uploadButton.disabled = false;
-        fileName.innerHTML = nameOfFile;
-        fileSize.innerHTML = fileSizeFormat(fileInput.files[0].size);
-        uploadedFile.style.cssText = "display: flex;";
-        progressBar.style.width = 0;
-        fileFlag = 0;
-
+        handleFileSelection(fileInput.files[0], nameOfFile, 'Selected');
     };
 });
 
 document.addEventListener('click', function(event) {
-    if (event.target.classList.contains('cancel-alert-button-remove')) {
+    if (event.target.closest(".cancel-alert-button-remove")) {
         handleRemoveButtonClick(event);
     }
 });
@@ -257,7 +256,7 @@ function appendErrorSpan(fieldName, formErrors) {
 
 function handleRemoveButtonClick(event) {
     const removeButton = event.target;
-    const errorSpan = removeButton.parentNode;
+    const errorSpan = removeButton.closest('.error-span');
 
     let adjacentElement = errorSpan.previousElementSibling;
 
@@ -706,40 +705,7 @@ if (isAdvancedUpload) {
         fileInput.files = files;
 
         nameOfFile = files[0].name;
-
-        fileTypeIsAllowed(fileInput.files[0], function(isAllowed) {
-            if (!isAllowed) {
-                fileFlag = 1;
-                fileInput.value = '';
-                cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
-                document.querySelector('.select-file-text').textContent = "Please upload only .txt, .docx or .pdf files";
-                showNotification(CORRECT_FORM_ERROR_MESSAGE);
-                return;
-            }
-        });
-
-        if (files[0].size > MAX_UPLOAD_SIZE_IN_BYTES) {
-            fileFlag = 1;
-            cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
-            document.querySelector('.select-file-text').textContent = "Please keep file size under " + MAX_UPLOAD_SIZE_FORMATTED + ". Current file size: " + fileSizeFormat(files[0].size);
-            showNotification(CORRECT_FORM_ERROR_MESSAGE);
-            fileInput.value = '';
-            return
-        }
-
-        uploadIcon.innerHTML = DropSuccessIconText;
-        dragDropText.innerHTML = 'File Dropped Successfully!';
-        document.querySelector(".label").innerHTML = `Drag & drop or <span class="browse-files"><input name="file_to_convert" accept=".txt,.docx,.pdf" type="file" class="default-file-input" style=""/><span class="browse-files-text" style="top: -23px;">browse file</span></span>`;
-        uploadButton.innerHTML = `Upload`;
-        uploadButton.disabled = false;
-
-        fileName.innerHTML = nameOfFile;
-        fileSize.innerHTML = fileSizeFormat(files[0].size);
-        uploadedFile.style.cssText = "display: flex;";
-        progressBar.style.width = 0;
-        fileFlag = 0;
-
-
+        handleFileSelection(files[0], nameOfFile, 'Dropped');
     });
 }
 
@@ -921,8 +887,8 @@ Required: FOUNDATION
 
         $(selectorInput).val(opts.defaultText);
         $(selectorID).val(opts.defaultValue);
-
-        var buildELement = $('<div class="searchSelect3" id="' + idDiv + '" style="position:relative;"><input class="searchSelect3_Input" placeholder="' + opts.placeholder + '" value="' + opts.defaultText + '" id="' + idInput + '"><span class="material-symbols-outlined searchSelect3_Times" id="' + idClose + '"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#302f2f"><path d="M0 0h24v24H0z" fill="none"/><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></span><span class="material-symbols-outlined searchSelect3_Caret_Down" id="' + idDown + '"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M480-360 280-559h400L480-360Z"/></svg></span></div>');
+        
+        var buildELement = $('<div class="searchSelect3" id="' + idDiv + '" style="position:relative;"><input class="searchSelect3_Input" placeholder="' + opts.placeholder + '" value="' + opts.defaultText + '" id="' + idInput + '"><span class="material-symbols-outlined searchSelect3_Times" id="' + idClose + '"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#302f2f"><path d="M0 0h24v24H0z" fill="none"/><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></span><span class="material-symbols-outlined searchSelect3_Caret_Down" id="' + idDown + '">arrow_drop_down</span></div>');
         
         
         if ($(selectorDiv).length > 0) {
