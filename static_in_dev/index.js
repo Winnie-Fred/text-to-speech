@@ -585,7 +585,7 @@ function toggleBackButton() {
                 returnButton.addEventListener('transitionend', onAnimationEnd, { once: true });
             } else {
                 returnButton.classList.add('back');
-                setTimeout(backAnim, 300);
+                setTimeout(backAnim, 500);
             }
         }
         
