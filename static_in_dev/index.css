@@ -560,7 +560,7 @@ body {
   cursor: pointer;
 }
 .browse-files span {
-  position: relative;
+  position: static !important;
   top: -25px;
   color: #fff;
 }
