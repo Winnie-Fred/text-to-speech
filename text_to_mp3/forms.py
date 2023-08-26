@@ -30,7 +30,7 @@ def get_file_type(file):
 
 
 class TextToConvertForm(forms.Form):
-    text_to_convert = forms.CharField(widget=forms.Textarea(attrs={'class': 'text', 'placeholder':"simply copy and paste..."}), required=True, max_length=MAX_NO_OF_CHARS, )
+    text_to_convert = forms.CharField(widget=forms.Textarea(attrs={'class': 'text', 'placeholder':"Type or paste text here"}), required=True, max_length=MAX_NO_OF_CHARS, )
 
 class FileUploadForm(forms.Form):
 

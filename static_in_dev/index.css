@@ -174,15 +174,6 @@ body > div:nth-child(2) > * {
   border-radius: 4px;
 }
 
-.detail {
-  width: 100%;
-  margin: 20px 0px;
-  font-weight: 400;
-  font-size: 18px;
-  line-height: 21px;
-  color: #333333;
-}
-
 .last {
   width: 100%;
   display: flex;
@@ -1645,14 +1636,14 @@ audio {
 .searchSelect3_Caret_Down {
   position: absolute;
   top: 16px;
-  left: 180px;
+  left: 270px;
   cursor: pointer;
 }
 
 .searchSelect3_Times {
   position: absolute;
   top: 16px;
-  left: 210px;
+  left: 240px;
   cursor: pointer;
   display: none;
   color: #000000;
@@ -1749,7 +1740,7 @@ margin: 20px 0px;
 .settings-text {
   margin: 0 0 30px;
   padding: 0;
-  color: #0c0b0b;
+  color: #e5e5e5;
   text-align: center;
 }
 

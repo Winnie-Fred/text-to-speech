@@ -52,7 +52,7 @@
                     <div id="selectWrapper" class="settings">
                         <div class="settings-lang">
                             <div class="choose_lang_form">
-                                <label style="color: #000000; font-weight: 500; font-size: 16px; padding-bottom: 10px;" for="selectLangList">Choose the language the text is in</label>        
+                                <label style="color: #e5e5e5; font-weight: 500; font-size: 16px; padding-bottom: 10px;" for="selectLangList">Choose the language the text is in</label>        
                                 <select id="selectLangList" name="{{ choose_lang_form.select_lang.name }}">                    
                                     {% for value, label in choose_lang_form.select_lang.field.choices %}
                                     <option value="{{ value }}">{{ label }}</option>
@@ -62,7 +62,7 @@
                         </div>
                         <div class="settings-accent">
                             <div class="voice_accent_form">
-                                <label style="color: #000000; font-weight: 500; font-size: 16px; padding-bottom: 10px;" for="selectVoiceAccentList">Choose an accent to read the text with</label>        
+                                <label style="color: #e5e5e5; font-weight: 500; font-size: 16px; padding-bottom: 10px;" for="selectVoiceAccentList">Choose an accent to read the text with</label>        
                                 <select id="selectVoiceAccentList">          
                                     {% for value, label in voice_accent_form.select_voice_accent.field.choices %}
                                     <option value="{{ value }}">{{ label }}</option>
