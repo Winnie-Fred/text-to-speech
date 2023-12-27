@@ -1,11 +1,11 @@
 from __future__ import absolute_import, unicode_literals
-from celery import Celery
-import django
 import os
+
+from celery import Celery
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'text_to_speech.settings')
 
-app = Celery('text_to_speech', backend='redis://localhost:6379', broker='pyamqp://')
+app = Celery('text_to_speech')
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.

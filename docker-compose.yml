@@ -1,0 +1,48 @@
+version: '3'
+services:
+  my-redis:
+    build:
+      context: .
+      dockerfile: Dockerfile.redis
+    container_name: my-redis-container
+    ports:
+      - "6379:6379"
+    restart: always
+  
+  my-rabbitmq:
+    build:
+      context: .
+      dockerfile: Dockerfile.rabbitmq
+    container_name: my-rabbitmq-container
+    ports:
+      - "5672:5672"
+    restart: always
+  
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.celery
+    container_name: celery-worker
+    environment:
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+    command: celery -A text_to_speech worker -l info
+    restart: always
+
+  django-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.django
+    container_name: django-server
+    environment:
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+    command: >
+      sh -c 'if [[ -n "$RENDER" ]]; then
+                 gunicorn text_to_speech.wsgi:application -c gunicorn_config.py;
+              else
+                 python manage.py runserver 0.0.0.0:8000;
+              fi'
+    ports:
+      - "8000:8000"
+    restart: always

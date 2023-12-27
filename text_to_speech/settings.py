@@ -143,7 +143,6 @@ STATICFILES_DIRS = [BASE_DIR / 'static_in_dev']
 
 MEDIA_URL = '/text_to_speech/media/' #  do this trick to use one acct for multiple files
 MEDIA_ROOT = BASE_DIR / 'media'
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.VideoMediaCloudinaryStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -155,7 +154,6 @@ if LIVE:
     SECRET_KEY = os.getenv('SECRET_KEY', default='your secret key')
     DATABASES = {
     'default': dj_database_url.config(
-        # Feel free to alter this value to suit your needs.        
         default='postgresql://postgres:postgres@localhost:5432/text_to_speech',        
         conn_max_age=600
     )}
@@ -168,8 +166,6 @@ if LIVE:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY':  os.getenv('CLOUDINARY_API_KEY'),
-    'API_SECRET':  os.getenv('CLOUDINARY_API_SECRET')
-}
+# Celery settings
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND')
