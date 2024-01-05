@@ -1,0 +1,40 @@
+# Use an official Python runtime as a parent image
+FROM python:3.10.12-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    supervisor \
+    rabbitmq-server \
+    redis-server \
+    libmagic1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create and set the working directory
+WORKDIR /app
+
+# Install Python dependencies
+COPY requirements.txt /app/
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the application code into the container
+COPY . /app/
+
+# Create directories for supervisor logs
+RUN mkdir -p /var/log/supervisor
+
+# Copy supervisor configuration file
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Expose the port the app runs on
+EXPOSE 8000 6379 5672
+
+# Create a script to choose between Gunicorn and Django development server
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
+# Start supervisord when the container starts
+CMD ["/app/start.sh"]
