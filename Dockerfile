@@ -23,6 +23,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application code into the container
 COPY . /app/
 
+# Create directories for static files
+RUN mkdir -p /app/staticfiles
+
 # Create directories for supervisor logs
 RUN mkdir -p /var/log/supervisor
 
