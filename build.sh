@@ -14,7 +14,6 @@ if [ -n "$RENDER" ]; then
     python manage.py createsuperuser --no-input
     fi
     python manage.py migrate
-    gunicorn text_to_speech.wsgi:application
 else
     python manage.py runserver 0.0.0.0:8000
 fi
