@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Start supervisord in the background
-supervisord -n &
-
 # Start Celery worker
 celery -A text_to_speech worker -l info &
 
