@@ -1,5 +1,7 @@
 #!/bin/bash
 
+pip install -r requirements.txt
+
 # Start Celery worker
 celery -A text_to_speech worker -l info &
 
