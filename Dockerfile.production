@@ -8,6 +8,7 @@ ENV PYTHONUNBUFFERED 1
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     supervisor \
+    libmagic1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Create and set the working directory
@@ -32,7 +33,6 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # Expose the port the app runs on
 EXPOSE 8000
 
-# Create a script to choose between Gunicorn and Django development server
 COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
