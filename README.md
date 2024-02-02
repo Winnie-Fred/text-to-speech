@@ -28,7 +28,7 @@ Also set the value for `DJANGO_SECRET_KEY` in this .env file.
 1. Make sure you have Docker and Docker Compose installed.
 2. Make sure the docker engine is running, otherwise, start it.
 3. Create an `.env` file and set the value for `DJANGO_SECRET_KEY` in this file. In addition, add the following:<br>
-CELERY_BROKER_URL=amqp://guest:guest@my-rabbitmq:5672// </br>
-CELERY_RESULT_BACKEND=redis://my-redis:6379/0 <br>
+`CELERY_BROKER_URL=amqp://guest:guest@my-rabbitmq:5672//` </br>
+`CELERY_RESULT_BACKEND=redis://my-redis:6379/0` <br>
 4. Go to the project directory root and run `docker build -t django_celery_base:v1.0 -f Dockerfile.base . && docker-compose build && docker-compose up`.
 5. That's it! Now go to localhost:8000 in your browser.
