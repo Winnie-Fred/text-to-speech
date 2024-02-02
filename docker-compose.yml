@@ -23,10 +23,6 @@ services:
       context: .
       dockerfile: Dockerfile.celery
     container_name: celery-worker
-    environment:
-      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
-      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
-    command: celery -A text_to_speech worker -l info
     restart: always
 
   django-server:
@@ -34,15 +30,11 @@ services:
       context: .
       dockerfile: Dockerfile.django
     container_name: django-server
-    environment:
-      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
-      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
     command: >
-      sh -c 'if [[ -n "$RENDER" ]]; then
-                 gunicorn text_to_speech.wsgi:application -c gunicorn_config.py;
-              else
-                 python manage.py runserver 0.0.0.0:8000;
-              fi'
+      sh -c '
+              python manage.py migrate
+              python manage.py runserver 0.0.0.0:8000;
+            '
     ports:
       - "8000:8000"
     restart: always

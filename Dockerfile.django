@@ -1,5 +1,1 @@
-FROM python:3.10
-WORKDIR /app
-COPY . /app
-RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+FROM django_celery_base:v1.0

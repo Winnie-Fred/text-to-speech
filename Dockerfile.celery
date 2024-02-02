@@ -1,5 +1,17 @@
-FROM python:3.10
-WORKDIR /app
-COPY . /app
-RUN pip install --upgrade pip && \
-    pip install -U Celery
+FROM django_celery_base:v1.0
+
+# Wait for RabbitMQ and Redis before starting Celery worker
+CMD sh -c ' \
+    wait_for_service() { \
+        local host="$1"; \
+        local port="$2"; \
+        local timeout="$3"; \
+        echo "Waiting for $host:$port to be available..."; \
+        until timeout 1 bash -c "cat < /dev/null > /dev/tcp/$host/$port"; do \
+            echo "$host:$port is not available yet. Retrying in 5 seconds..."; \
+            sleep 5; \
+        done; \
+        echo "$host:$port is now available."; \
+    }; \
+    wait_for_service my-rabbitmq 5672 600 && wait_for_service my-redis 6379 600 && celery -A text_to_speech worker -l info \
+'
