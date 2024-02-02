@@ -256,9 +256,9 @@ function appendErrorSpan(fieldName, formErrors) {
 
 function handleRemoveButtonClick(event) {
     const removeButton = event.target;
-    const errorSpan = removeButton.closest('.error-span');
+    const spanElement = removeButton.closest('.error-span, .success-span, .info-span');
 
-    let adjacentElement = errorSpan.previousElementSibling;
+    let adjacentElement = spanElement.previousElementSibling;
 
     // Traverse until an element with an input field is found
     while (adjacentElement && !adjacentElement.querySelector('input')) {
@@ -266,7 +266,7 @@ function handleRemoveButtonClick(event) {
     }
 
     if (!adjacentElement) {
-        adjacentElement = errorSpan.previousElementSibling;
+        adjacentElement = spanElement.previousElementSibling;
     }
 
     if (adjacentElement) {
@@ -276,7 +276,7 @@ function handleRemoveButtonClick(event) {
         }
     }
 
-    errorSpan.parentNode.removeChild(errorSpan);
+    spanElement.parentNode.removeChild(spanElement);
 }
 
 
